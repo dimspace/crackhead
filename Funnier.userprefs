@@ -1,0 +1,45 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="FlickrNet/Flickr.cs">
+    <Files>
+      <File FileName="Funny/FunnyViewController.cs" Line="115" Column="39" />
+      <File FileName="Funny/FlickrAuth.cs" Line="8" Column="18" />
+      <File FileName="FlickrNet/Auth.cs" Line="1" Column="1" />
+      <File FileName="FlickrNet/ActivityEvent.cs" Line="1" Column="1" />
+      <File FileName="FlickrNet/Flickr.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True" selected="True">
+          <Node name="Funnier" expanded="True">
+            <Node name="References" expanded="True" />
+          </Node>
+          <Node name="OpenFlowSharp" expanded="True" />
+        </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/PictureViewController.cs" line="226" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/PictureViewController.cs" line="233" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/PictureViewController.cs" line="180" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/PictureViewController.cs" line="217" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/PictureViewController.cs" line="209" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/PictureViewController.cs" line="207" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/PictureViewController.cs" line="194" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/FlickrNet/Flickr_Auth.cs" line="122" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/FunnyViewController.cs" line="93" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/FunnyViewController.cs" line="100" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/FunnyViewController.cs" line="106" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/FunnyViewController.cs" line="112" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
