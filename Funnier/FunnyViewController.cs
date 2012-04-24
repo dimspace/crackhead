@@ -11,7 +11,7 @@ namespace Funny
 {
     public partial class FunnyViewController : UIViewController
     {
-        private PointF rotateContentOffset;
+        private float currentImageIndex;
         private UIScrollView scrollView;
         private Flickr flickr;
         private readonly List<UIImageView> imageViews = new List<UIImageView>();
@@ -41,7 +41,7 @@ namespace Funny
             scrollView.ShowsHorizontalScrollIndicator = false;
             scrollView.MaximumZoomScale = 2.0f;
             scrollView.MinimumZoomScale = 1.0f;
-            scrollView.ContentMode = UIViewContentMode.TopLeft;
+//            scrollView.ContentMode = UIViewContentMode.TopLeft;
 
             scrollView.BackgroundColor = UIColor.White;
             scrollView.AutosizesSubviews = true;
@@ -84,35 +84,31 @@ namespace Funny
         {
             base.WillRotate (toInterfaceOrientation, duration);
             
-            rotateContentOffset = scrollView.ContentOffset;
-            scrollView.Hidden = true;
+            // compute the index of the current image
+            currentImageIndex = scrollView.ContentOffset.X / (scrollView.ContentSize.Width / imageViews.Count);
         }
         
         public override void DidRotate (UIInterfaceOrientation fromInterfaceOrientation)
         {
             base.DidRotate (fromInterfaceOrientation);
             
-//            scrollView.LayoutSubviews();
             float x = 0;
-            float newOffset = 0;
             RectangleF bounds =  UIScreen.MainScreen.Bounds;
             
+            // in landscape flip height and width
             if (InterfaceOrientation == UIInterfaceOrientation.LandscapeLeft || 
                     InterfaceOrientation == UIInterfaceOrientation.LandscapeRight) {
                 bounds = new RectangleF(0, 0, bounds.Height, bounds.Width);
             }
+                        
             foreach (UIImageView iv in imageViews) {
-                if (x == rotateContentOffset.X) {
-                    newOffset = x;
-                }
                 iv.Frame = new RectangleF(x, 0, bounds.Width, bounds.Height);
                 x += bounds.Width;
             }
-            scrollView.ZoomScale = 1.0f;          
-//            scrollView.ContentOffset = new PointF(newOffset, 0);
+
+            scrollView.ContentOffset = new PointF(currentImageIndex * bounds.Width, 0);
             scrollView.ContentSize = new SizeF(x, bounds.Height);
             scrollView.LayoutSubviews();
-            scrollView.Hidden = false;
         }
         
         private void ImagesLoaded(PhotosetPhotoCollection photoset) {
