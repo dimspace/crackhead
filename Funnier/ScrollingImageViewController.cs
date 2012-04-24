@@ -9,18 +9,19 @@ using FlickrNet;
 
 namespace Funny
 {
-    public partial class FunnyViewController : UIViewController
+    public partial class ScrollingImageViewController : UIViewController
     {
         private float currentImageIndex;
-        private UIScrollView scrollView;
+//        private UIScrollView scrollView;
         private Flickr flickr;
+        private PhotosetPhotoCollection photos;
         private readonly List<UIImageView> imageViews = new List<UIImageView>();
         
         static bool UserInterfaceIdiomIsPhone {
             get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
         }
 
-        public FunnyViewController (IntPtr handle) : base (handle)
+        public ScrollingImageViewController (IntPtr handle) : base (handle)
         {
         }
         
@@ -31,8 +32,6 @@ namespace Funny
             base.ViewDidLoad ();
             flickr = new Flickr (FlickrAuth.apiKey, FlickrAuth.sharedSecret);
 
-            scrollView = new UIScrollView();
-            
             scrollView.PagingEnabled = true;
             scrollView.ScrollEnabled = true;
             
@@ -41,12 +40,15 @@ namespace Funny
             scrollView.ShowsHorizontalScrollIndicator = false;
             scrollView.MaximumZoomScale = 2.0f;
             scrollView.MinimumZoomScale = 1.0f;
-//            scrollView.ContentMode = UIViewContentMode.TopLeft;
 
             scrollView.BackgroundColor = UIColor.White;
             scrollView.AutosizesSubviews = true;
             
-            View = scrollView;
+            scrollView.Delegate = new ScrollViewDelegate(this);
+            
+            RectangleF bounds =  UIScreen.MainScreen.Bounds;
+            lblCaption.Frame = new RectangleF(0, bounds.Height - 100, bounds.Width, 100);
+            
             
             StartLoading();
         }
@@ -85,7 +87,12 @@ namespace Funny
             base.WillRotate (toInterfaceOrientation, duration);
             
             // compute the index of the current image
-            currentImageIndex = scrollView.ContentOffset.X / (scrollView.ContentSize.Width / imageViews.Count);
+            currentImageIndex = GetImageIndex();
+        }
+        
+        private int GetImageIndex() {
+            float index = scrollView.ContentOffset.X / (scrollView.ContentSize.Width / imageViews.Count);
+            return (int)index;
         }
         
         public override void DidRotate (UIInterfaceOrientation fromInterfaceOrientation)
@@ -108,34 +115,54 @@ namespace Funny
 
             scrollView.ContentOffset = new PointF(currentImageIndex * bounds.Width, 0);
             scrollView.ContentSize = new SizeF(x, bounds.Height);
-            scrollView.LayoutSubviews();
+            
+            PositionCaption((int)currentImageIndex);
+//            scrollView.LayoutSubviews();
+        }
+        
+        private void PositionCaption(int imageIndex) {
+            UIImageView imageView = imageViews[imageIndex];
+            var imageFrame = imageView.Frame;
+            lblCaption.Frame = new RectangleF(5, imageFrame.Height, 
+                                                      lblCaption.Frame.Width, lblCaption.Frame.Height);
+            scrollView.BringSubviewToFront(lblCaption);
         }
         
         private void ImagesLoaded(PhotosetPhotoCollection photoset) {
-            imageViews.Clear();            
-            RectangleF bounds =  UIScreen.MainScreen.Bounds;
-            float x = 0;
+            imageViews.Clear();
             
-            foreach (Photo p in photoset) {
-                Network = true;
-                var data = NSData.FromUrl (new NSUrl (p.MediumUrl));
-                var image = UIImage.LoadFromData (data);
-                Network = false;
+            if (photoset.Count > 0) {
+                photos = photoset;
+                RectangleF bounds =  UIScreen.MainScreen.Bounds;
+                float x = 0;
                 
-                var imageView = new UIImageView(image);
-//                imageView.AutoresizingMask = UIViewAutoresizing.FlexibleHeight;
-                imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+                foreach (Photo p in photoset) {
+                    Network = true;
+                    var data = NSData.FromUrl (new NSUrl (p.MediumUrl));
+                    var image = UIImage.LoadFromData (data);
+                    Network = false;
+                    
+                    var imageView = new UIImageView(image);
+    //                imageView.AutoresizingMask = UIViewAutoresizing.FlexibleHeight;
+                    imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+                    
+                    var frame = imageView.Frame;                    
+                    imageView.Frame = new RectangleF(x, 0, 
+                                                     Math.Min(frame.Width, bounds.Width),
+                                                     Math.Min(frame.Height, bounds.Height));
+                    
+                    x += bounds.Width;
+                    imageViews.Add(imageView);
+                }
                 
-                imageView.Frame = new RectangleF(x, 0, bounds.Width, bounds.Height);
-                x += bounds.Width;
-                imageViews.Add(imageView);
+                InvokeOnMainThread (delegate {
+                    PositionCaption(0);
+                    lblCaption.Text = photoset[0].Title;
+                    scrollView.AddSubviews(imageViews.ToArray());
+                    scrollView.ContentSize = new SizeF(x, bounds.Height);
+                });
+                
             }
-            
-            InvokeOnMainThread (delegate {
-                scrollView.AddSubviews(imageViews.ToArray());
-            });
-            
-            scrollView.ContentSize = new SizeF(x, bounds.Height);
         }
         
         #endregion
@@ -149,6 +176,23 @@ namespace Funny
                 return true;
             }
         }
+    
+        private class ScrollViewDelegate : UIScrollViewDelegate {
+            private readonly ScrollingImageViewController controller;
+            internal ScrollViewDelegate(ScrollingImageViewController controller) {
+                this.controller = controller;
+            }
+            
+            public override void Scrolled (UIScrollView scrollView)
+            {
+                int index = controller.GetImageIndex();
+                if (index > 0 && index < controller.imageViews.Count) {
+                    var photo = controller.photos[index];
+                    controller.lblCaption.Text = photo.Title;
+                }
+            }
+        }
     }
 }
+
 

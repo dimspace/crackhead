@@ -68,11 +68,11 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="FunnyViewController.cs" />
-    <Compile Include="FunnyViewController.designer.cs">
-      <DependentUpon>FunnyViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="FlickrAuth.cs" />
+    <Compile Include="ScrollingImageViewController.cs" />
+    <Compile Include="ScrollingImageViewController.designer.cs">
+      <DependentUpon>ScrollingImageViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />
