@@ -14,8 +14,8 @@ namespace Funny
         private float currentImageIndex;
 //        private UIScrollView scrollView;
         private Flickr flickr;
-        private PhotosetPhotoCollection photos;
-        private readonly List<UIImageView> imageViews = new List<UIImageView>();
+//        private PhotosetPhotoCollection photos;
+        private readonly List<PhotoWithImage> photos = new List<PhotoWithImage>();
         
         static bool UserInterfaceIdiomIsPhone {
             get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
@@ -46,31 +46,37 @@ namespace Funny
             
             scrollView.Delegate = new ScrollViewDelegate(this);
             
-            RectangleF bounds =  UIScreen.MainScreen.Bounds;
-            lblCaption.Frame = new RectangleF(0, bounds.Height - 100, bounds.Width, 100);
-            
-            
             StartLoading();
         }
         
         private void StartLoading() {
 
             ThreadPool.QueueUserWorkItem(
-            delegate {
-                try {
-                    Network = true;
-                    var photos = flickr.PhotosetsGetPhotos("72157629877473203");
-                    Network = false;
-                    ImagesLoaded(photos);
-                } catch (Exception ex) {
-                    Console.WriteLine(ex);
-                    InvokeOnMainThread (delegate {
-                        using (var alert = new UIAlertView ("Error", "While accessing Flickr - " + ex.Message, null, "Ok")) {
-                            alert.Show ();
-                        }
-                    });
-                }
-            });
+                delegate {
+                    try {
+                        Network = true;
+                        var photos = flickr.PhotosetsGetPhotos("72157629877473203");
+                        Network = false;
+                        ImagesLoaded(photos);
+                    } catch (System.Net.WebException ex) {
+                        Console.WriteLine(ex);
+                        InvokeOnMainThread (delegate {
+                            using (var alert = new UIAlertView ("Error", "While accessing Flickr - " + ex.Message, null, "Ok")) {
+                                alert.Show ();
+                            }
+                        });                    
+                    }
+                    catch (Exception ex) {
+                        Console.WriteLine(ex);
+                        InvokeOnMainThread (delegate {
+                            using (var alert = new UIAlertView ("Error", "While accessing Flickr - " + ex.Message, null, "Ok")) {
+                                alert.Show ();
+                            }
+                        });
+                    } finally {
+                        Network = false;
+                    }
+                });
         }
         
         static bool Network {
@@ -91,77 +97,91 @@ namespace Funny
         }
         
         private int GetImageIndex() {
-            float index = scrollView.ContentOffset.X / (scrollView.ContentSize.Width / imageViews.Count);
+            float index = scrollView.ContentOffset.X / (scrollView.ContentSize.Width / photos.Count);
             return (int)index;
         }
         
-        public override void DidRotate (UIInterfaceOrientation fromInterfaceOrientation)
-        {
-            base.DidRotate (fromInterfaceOrientation);
-            
-            float x = 0;
-            RectangleF bounds =  UIScreen.MainScreen.Bounds;
+        private RectangleF GetBounds() {
+            RectangleF bounds = UIScreen.MainScreen.Bounds;
             
             // in landscape flip height and width
             if (InterfaceOrientation == UIInterfaceOrientation.LandscapeLeft || 
                     InterfaceOrientation == UIInterfaceOrientation.LandscapeRight) {
                 bounds = new RectangleF(0, 0, bounds.Height, bounds.Width);
             }
-                        
-            foreach (UIImageView iv in imageViews) {
-                iv.Frame = new RectangleF(x, 0, bounds.Width, bounds.Height);
-                x += bounds.Width;
+            return bounds;
+        }
+        
+        public override void DidRotate (UIInterfaceOrientation fromInterfaceOrientation)
+        {
+            base.DidRotate (fromInterfaceOrientation);
+            
+            RectangleF bounds = GetBounds();
+   
+//            photos[(int)currentImageIndex].Resize(new RectangleF(bounds.Width * currentImageIndex, 0, bounds.Width, bounds.Height));
+            
+            
+            for (int i = 0; i < photos.Count; i++) {
+                PhotoWithImage p = photos[i];
+                p.Resize(new RectangleF(bounds.Width * i, 0, bounds.Width, bounds.Height));
             }
 
             scrollView.ContentOffset = new PointF(currentImageIndex * bounds.Width, 0);
-            scrollView.ContentSize = new SizeF(x, bounds.Height);
+            scrollView.ContentSize = new SizeF(bounds.Width * photos.Count, bounds.Height);
             
-            PositionCaption((int)currentImageIndex);
+            
+//            PositionCaption((int)currentImageIndex);
 //            scrollView.LayoutSubviews();
         }
         
+        /*
         private void PositionCaption(int imageIndex) {
             UIImageView imageView = imageViews[imageIndex];
             var imageFrame = imageView.Frame;
-            lblCaption.Frame = new RectangleF(5, imageFrame.Height, 
+            UILabel lblCaption = captions[imageIndex];
+            
+            lblCaption.Frame = new RectangleF(imageFrame.X, imageFrame.Height, 
                                                       lblCaption.Frame.Width, lblCaption.Frame.Height);
+            scrollView.AddSubview(lblCaption);
             scrollView.BringSubviewToFront(lblCaption);
-        }
+        }*/
         
         private void ImagesLoaded(PhotosetPhotoCollection photoset) {
-            imageViews.Clear();
+            photos.Clear();
             
             if (photoset.Count > 0) {
-                photos = photoset;
                 RectangleF bounds =  UIScreen.MainScreen.Bounds;
-                float x = 0;
                 
-                foreach (Photo p in photoset) {
+                for (int i = 0; i < photoset.Count; i++) {
+                    Photo p = photoset[i];
                     Network = true;
                     var data = NSData.FromUrl (new NSUrl (p.MediumUrl));
                     var image = UIImage.LoadFromData (data);
                     Network = false;
+                                        
+                    PhotoWithImage photoWithImage = new PhotoWithImage(p, image);
+                    photos.Add(photoWithImage);
                     
-                    var imageView = new UIImageView(image);
-    //                imageView.AutoresizingMask = UIViewAutoresizing.FlexibleHeight;
-                    imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+                    if (i == 0) {
+                        InvokeOnMainThread (delegate {
                     
-                    var frame = imageView.Frame;                    
-                    imageView.Frame = new RectangleF(x, 0, 
-                                                     Math.Min(frame.Width, bounds.Width),
-                                                     Math.Min(frame.Height, bounds.Height));
-                    
-                    x += bounds.Width;
-                    imageViews.Add(imageView);
+                            scrollView.ContentSize = new SizeF(bounds.Width * 5, bounds.Height);
+                            photoWithImage.Create(new RectangleF(0, 0, bounds.Width, bounds.Height), scrollView);
+                        });
+                    }
                 }
-                
+                 
                 InvokeOnMainThread (delegate {
-                    PositionCaption(0);
-                    lblCaption.Text = photoset[0].Title;
-                    scrollView.AddSubviews(imageViews.ToArray());
-                    scrollView.ContentSize = new SizeF(x, bounds.Height);
+                    
+                    scrollView.ContentSize = new SizeF(bounds.Width * photos.Count, bounds.Height);
+                    
+                    // render first 3 images
+                    for (int i = 0; i < Math.Min(photos.Count, 3); i++) {
+                        float x = i * bounds.Width;
+                        photos[i].Create(new RectangleF(x, 0, bounds.Width, bounds.Height), scrollView);
+                    }
                 });
-                
+                                
             }
         }
         
@@ -185,11 +205,76 @@ namespace Funny
             
             public override void Scrolled (UIScrollView scrollView)
             {
+                RectangleF bounds =  controller.GetBounds();
                 int index = controller.GetImageIndex();
+                for (int i = index; i < Math.Min(controller.photos.Count, index + 3); i++) {
+                    float x = i * bounds.Width;
+                    controller.photos[i].Create(new RectangleF(x, 0, bounds.Width, bounds.Height), scrollView);
+                }
+                /*
                 if (index > 0 && index < controller.imageViews.Count) {
                     var photo = controller.photos[index];
                     controller.lblCaption.Text = photo.Title;
+                }*/
+            }
+        }
+        
+        private class PhotoWithImage {
+            public Photo Photo {get; private set;}
+            public volatile UIImageView imageView;
+            public UILabel Caption {get; private set;}
+            private SizeF originalImageSize;
+            private readonly UIImage image;
+            
+            public PhotoWithImage(Photo photo, UIImage image) {
+                this.Photo = photo;
+                this.image = image;
+            }
+            
+            public void Create(RectangleF bounds, UIScrollView scrollView) {
+                if (null == imageView) {
+                    imageView = new UIImageView(image);
+                    this.originalImageSize = imageView.Frame.Size;
+                    Caption = new UILabel();
+                    
+    //                imageView.AutoresizingMask = UIViewAutoresizing.FlexibleHeight;
+                    scrollView.AddSubviews(imageView);
+                    
+                    imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+                    
+                    
+                                    
+                    Caption.Text = Photo.Title;
+    //                        lblCaption.SizeToFit();
+                    Caption.Opaque = false;
+                    Caption.ContentMode = UIViewContentMode.Center;
+                    Caption.TextAlignment = UITextAlignment.Center;
+                    
+    //                        lblCaption.Center = new PointF(bounds.Width / 2, bounds.Height + lblCaption.Frame.Height);
+                                    
+                    scrollView.AddSubview(Caption);
                 }
+                Resize(bounds);
+            }
+            
+            private void PositionCaption() {
+                var frame = imageView.Frame;
+                frame = new RectangleF(frame.X + 5, frame.Height-40, 
+                                                  frame.Width - 10, 50);
+                Caption.Frame = frame;
+            }
+            
+            public void Resize(RectangleF bounds) {
+                if (null == imageView) {
+                    return;
+                }
+                SizeF newImageBounds = new SizeF(Math.Min(bounds.Width, originalImageSize.Width),
+                                                 Math.Min(bounds.Height, originalImageSize.Height));
+    
+                float newHeight = (newImageBounds.Width * originalImageSize.Height) / originalImageSize.Width;
+                
+                imageView.Frame = new RectangleF(bounds.X, 0, newImageBounds.Width, newHeight);
+                PositionCaption();
             }
         }
     }

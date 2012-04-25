@@ -8,26 +8,18 @@ using MonoTouch.Foundation;
 
 namespace Funny
 {
-	[Register ("ScrollingImageViewController")]
-	partial class ScrollingImageViewController
-	{
-		[Outlet]
-		MonoTouch.UIKit.UIScrollView scrollView { get; set; }
-
-		[Outlet]
-		MonoTouch.UIKit.UILabel lblCaption { get; set; }
-		
-		void ReleaseDesignerOutlets ()
-		{
-			if (scrollView != null) {
-				scrollView.Dispose ();
-				scrollView = null;
-			}
-
-			if (lblCaption != null) {
-				lblCaption.Dispose ();
-				lblCaption = null;
-			}
-		}
-	}
+ [Register ("ScrollingImageViewController")]
+ partial class ScrollingImageViewController
+ {
+     [Outlet]
+     MonoTouch.UIKit.UIScrollView scrollView { get; set; }
+     
+     void ReleaseDesignerOutlets ()
+     {
+         if (scrollView != null) {
+             scrollView.Dispose ();
+             scrollView = null;
+         }
+     }
+ }
 }

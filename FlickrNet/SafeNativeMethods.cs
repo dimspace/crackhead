@@ -16,7 +16,7 @@ namespace FlickrNet
 
         internal static int GetErrorCode(System.IO.IOException ioe)
         {
-#if !WindowsCE && !SILVERLIGHT
+#if !WindowsCE && !SILVERLIGHT && !MONOTOUCH
             System.Security.Permissions.SecurityPermission permission = new System.Security.Permissions.SecurityPermission(System.Security.Permissions.SecurityPermissionFlag.UnmanagedCode);
             permission.Demand();
 

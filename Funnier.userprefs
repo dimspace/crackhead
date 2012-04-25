@@ -1,20 +1,20 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="FlickrNet/Flickr.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Funnier/ScrollingImageViewController.cs">
     <Files>
-      <File FileName="Funny/FunnyViewController.cs" Line="115" Column="39" />
-      <File FileName="Funny/FlickrAuth.cs" Line="8" Column="18" />
       <File FileName="FlickrNet/Auth.cs" Line="1" Column="1" />
       <File FileName="FlickrNet/ActivityEvent.cs" Line="1" Column="1" />
       <File FileName="FlickrNet/Flickr.cs" Line="1" Column="1" />
+      <File FileName="Funnier/ScrollingImageViewController.cs" Line="126" Column="48" />
+      <File FileName="Funnier/ScrollingImageViewController.designer.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
-        <State expanded="True" selected="True">
+        <State expanded="True">
           <Node name="Funnier" expanded="True">
             <Node name="References" expanded="True" />
+            <Node name="ScrollingImageViewController.cs" expanded="True" />
           </Node>
-          <Node name="OpenFlowSharp" expanded="True" />
         </State>
       </Pad>
       <Pad Id="ClassPad">
@@ -39,6 +39,7 @@
       <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/FunnyViewController.cs" line="100" />
       <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/FunnyViewController.cs" line="106" />
       <Breakpoint file="/Users/sdaubin/Projects/Funny/Funny/FunnyViewController.cs" line="112" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/ScrollingImageViewController.cs" line="125" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
