@@ -154,10 +154,9 @@ namespace Funny
                 
                 for (int i = 0; i < photoset.Count; i++) {
                     Photo p = photoset[i];
-                    Network = true;
-                    var data = NSData.FromUrl (new NSUrl (p.MediumUrl));
+                    NSData data = FileCacher.LoadUrl(p.MediumUrl);
+                    
                     var image = UIImage.LoadFromData (data);
-                    Network = false;
                                         
                     PhotoWithImage photoWithImage = new PhotoWithImage(p, image);
                     photos.Add(photoWithImage);
@@ -253,8 +252,8 @@ namespace Funny
     //                        lblCaption.Center = new PointF(bounds.Width / 2, bounds.Height + lblCaption.Frame.Height);
                                     
                     scrollView.AddSubview(Caption);
+                    Resize(bounds);
                 }
-                Resize(bounds);
             }
             
             private void PositionCaption() {

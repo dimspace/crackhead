@@ -4,6 +4,12 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>Funnier</string>
+	<key>CFBundleIconFiles</key>
+	<array>
+		<string>icons/icon.png</string>
+		<string>icons/icon@2x.png</string>
+		<string>icons/icon-72.png</string>
+	</array>
 	<key>CFBundleIdentifier</key>
 	<string>Funnier</string>
 	<key>CFBundleVersion</key>

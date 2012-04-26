@@ -73,6 +73,7 @@
     <Compile Include="ScrollingImageViewController.designer.cs">
       <DependentUpon>ScrollingImageViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="FileCacher.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />
@@ -84,5 +85,13 @@
       <Project>{5F017126-C1FF-4996-85CC-6150E80C6AFC}</Project>
       <Name>FlickrNet</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="icons\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icons\icon-72.png" />
+    <Content Include="icons\icon.png" />
+    <Content Include="icons\icon%402x.png" />
   </ItemGroup>
 </Project>
