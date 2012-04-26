@@ -118,8 +118,6 @@ namespace Funny
             
             RectangleF bounds = GetBounds();
    
-//            photos[(int)currentImageIndex].Resize(new RectangleF(bounds.Width * currentImageIndex, 0, bounds.Width, bounds.Height));
-            
             
             for (int i = 0; i < photos.Count; i++) {
                 PhotoWithImage p = photos[i];
@@ -130,21 +128,7 @@ namespace Funny
             scrollView.ContentSize = new SizeF(bounds.Width * photos.Count, bounds.Height);
             
             
-//            PositionCaption((int)currentImageIndex);
-//            scrollView.LayoutSubviews();
         }
-        
-        /*
-        private void PositionCaption(int imageIndex) {
-            UIImageView imageView = imageViews[imageIndex];
-            var imageFrame = imageView.Frame;
-            UILabel lblCaption = captions[imageIndex];
-            
-            lblCaption.Frame = new RectangleF(imageFrame.X, imageFrame.Height, 
-                                                      lblCaption.Frame.Width, lblCaption.Frame.Height);
-            scrollView.AddSubview(lblCaption);
-            scrollView.BringSubviewToFront(lblCaption);
-        }*/
         
         private void ImagesLoaded(PhotosetPhotoCollection photoset) {
             photos.Clear();
@@ -235,6 +219,12 @@ namespace Funny
                     imageView = new UIImageView(image);
                     this.originalImageSize = imageView.Frame.Size;
                     Caption = new UILabel();
+                    
+//Times New Roman  TimesNewRomanPS-ItalicMT
+//Times New Roman  TimesNewRomanPS-BoldMT
+//Times New Roman  TimesNewRomanPSMT
+//Times New Roman  TimesNewRomanPS-BoldItalicMT
+                    Caption.Font = UIFont.FromName("TimesNewRomanPSMT", 12);
                     
     //                imageView.AutoresizingMask = UIViewAutoresizing.FlexibleHeight;
                     scrollView.AddSubviews(imageView);
