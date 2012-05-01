@@ -74,10 +74,19 @@
       <DependentUpon>ScrollingImageViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="FileCacher.cs" />
+    <Compile Include="CaptionedImage.cs" />
+    <Compile Include="IResizable.cs" />
+    <Compile Include="PagingScrollView.cs" />
+    <Compile Include="PagingViewDataSource.cs" />
+    <Compile Include="ImageViewController.cs" />
+    <Compile Include="ImageViewController.designer.cs">
+      <DependentUpon>ImageViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />
     <InterfaceDefinition Include="MainStoryboard_iPad.storyboard" />
+    <InterfaceDefinition Include="ImageViewController.xib" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
