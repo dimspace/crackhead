@@ -25,7 +25,21 @@ namespace Funny
                 scrollView.ContentSize = new SizeF(Frame.Width * dataSource.Count, Frame.Height);
                 
                 // render up to the first 2 views
-                for (int i = 0; i < Math.Min(2, dataSource.Count); i++) {
+                RenderViews(0, Math.Min(2, dataSource.Count));
+                
+                DataSource.OnChanged += delegate() {
+                    UIView[] existingViews = views;
+                    views = new UIView[dataSource.Count];
+                    Array.Copy(existingViews, views, existingViews.Length);
+                    scrollView.ContentSize = new SizeF(Frame.Width * dataSource.Count, Frame.Height);
+                    RenderViews(0, Math.Min(2, dataSource.Count));
+                };
+            }
+        }
+        
+        public void RenderViews(int start, int end) {
+            for (int i = start; i < end; i++) {
+                if (null == views[i]) {
                     UIView view = dataSource.GetView(i);
                     views[i] = view;
                     view.Frame = new RectangleF(i * Frame.Width, 0, Frame.Width, Frame.Height);
@@ -72,7 +86,8 @@ namespace Funny
             int index = GetImageIndex();
             
             UIView currentImage = views[index];
-              
+            
+            // this animation is a little akward because the origin shifts in the scroll view
             CGAffineTransform t = CGAffineTransform.MakeIdentity();
             UIView.BeginAnimations("resize");
             

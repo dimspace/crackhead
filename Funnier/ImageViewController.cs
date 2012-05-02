@@ -12,11 +12,24 @@ namespace Funny
     public partial class ImageViewController : UIViewController
     {
         private PagingScrollView scrollView;
-        private readonly Flickr flickr;
+        private readonly FlickrDataSource dataSource;
         
         public ImageViewController(IntPtr handle) : base (handle)
         {
-            flickr = new Flickr (FlickrAuth.apiKey, FlickrAuth.sharedSecret);
+            dataSource = new FlickrDataSource();
+            dataSource.Added += PhotosAdded;
+        }
+        
+        private void PhotosAdded(List<PhotoInfo> photos) {
+            InvokeOnMainThread (delegate {
+                if (null == scrollView.DataSource) {
+                    scrollView.DataSource = new DataSource(photos);
+                } else {
+                    (scrollView.DataSource as DataSource).AddPhotos(photos);
+                }
+//                            scrollView.DataSource = new DataSource(photos);
+                
+            });
         }
         
         public override void DidReceiveMemoryWarning ()
@@ -48,11 +61,9 @@ namespace Funny
             ThreadPool.QueueUserWorkItem(
                 delegate {
                     try {
-                        Network = true;
-                        var photos = flickr.PhotosetsGetPhotos("72157629877473203");
-                        Network = false;
+                        dataSource.Fetch();
                         InvokeOnMainThread (delegate {
-                            scrollView.DataSource = new DataSource(photos);
+//                            scrollView.DataSource = new DataSource(photos);
                         });
                     } catch (System.Net.WebException ex) {
                         Console.WriteLine(ex);
@@ -77,7 +88,7 @@ namespace Funny
         
         public override void ViewDidLoad ()
         {
-            base.ViewDidLoad ();
+            base.ViewDidLoad ();            
             
 //            View.AutosizesSubviews = true;
             
@@ -89,6 +100,10 @@ namespace Funny
             scrollView.Frame = UIScreen.MainScreen.Bounds; //new RectangleF(0, 0, View.Frame.Width, View.Frame.Height);
             
             View.AddSubview(scrollView);
+            
+            if (dataSource.Photos.Count > 0) {
+                scrollView.DataSource = new DataSource(dataSource.Photos);
+            }
             StartLoading();
         }
         
@@ -126,15 +141,12 @@ namespace Funny
         
         private class DataSource : PagingViewDataSource {
             private readonly List<PhotoImage> photos;
-            public DataSource(PhotosetPhotoCollection photos) {
+            public event Changed OnChanged;
+            
+            public DataSource(ICollection<PhotoInfo> photos) {
                 this.photos = new List<PhotoImage>();
                 
-                for (int i = 0; i < photos.Count; i++) {
-                    Photo p = photos[i];
-                    NSData data = FileCacher.LoadUrl(p.MediumUrl);
-                    var image = UIImage.LoadFromData (data);
-                    this.photos.Add(new PhotoImage(p, image));
-                }
+                AddPhotos(photos);
             }
             
             public int Count { 
@@ -143,16 +155,26 @@ namespace Funny
                 }
             }
         
+            public void AddPhotos(ICollection<PhotoInfo> newPhotos) {
+                foreach (PhotoInfo p in newPhotos) {
+                    NSData data = FileCacher.LoadUrl(p.Url);
+                    var image = UIImage.LoadFromData (data);
+                    this.photos.Add(new PhotoImage(p, image));
+                }
+                if (null != OnChanged) {
+                    OnChanged();
+                }
+            }
             
             public UIView GetView(int index) {
-                return new CaptionedImage(photos[index].image, photos[index].photo.Title);
+                return new CaptionedImage(photos[index].image, photos[index].photo.Caption);
             }
             
             private class PhotoImage {
-                internal readonly Photo photo;
+                internal readonly PhotoInfo photo;
                 internal readonly UIImage image;
                 
-                public PhotoImage(Photo photo, UIImage image) {
+                public PhotoImage(PhotoInfo photo, UIImage image) {
                     this.photo = photo;
                     this.image = image;
                 }
