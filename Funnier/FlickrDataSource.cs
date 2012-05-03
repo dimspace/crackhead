@@ -12,6 +12,10 @@ namespace Funny
     
     public class FlickrDataSource
     {
+        /// <summary>
+        /// Dictionary of photo ids to photos.
+        /// </summary>
+        /// 
         private readonly Dictionary<string, PhotoInfo> photos = new Dictionary<string, PhotoInfo>();
         private readonly Flickr flickr;
         
@@ -26,7 +30,7 @@ namespace Funny
                     IntPtr ptr = photos.ValueAt(i);
                     NSDictionary dict = Runtime.GetNSObject(ptr) as NSDictionary;
                     PhotoInfo p = new PhotoInfo(dict);
-                    this.photos.Add(p.Url, p);
+                    this.photos.Add(p.Id, p);
                 }
             }
         }
@@ -46,17 +50,33 @@ namespace Funny
                 UIApplication.SharedApplication.NetworkActivityIndicatorVisible = false;
             }
             
+            bool changed = false;
             List<PhotoInfo> newPhotos = new List<PhotoInfo>();
             foreach (Photo p in photos) {
-                if (!this.photos.ContainsKey(p.MediumUrl)) {
-                    PhotoInfo info = new PhotoInfo(p.MediumUrl, p.Title);
-                    this.photos[info.Url] = info;
+                if (!this.photos.ContainsKey(p.PhotoId)) {
+                    PhotoInfo info = new PhotoInfo(p.PhotoId, p.MediumUrl, p.Title);
+                    this.photos[p.PhotoId] = info;
                     newPhotos.Add(info);
+                } else {
+                    PhotoInfo info = this.photos[p.PhotoId];
+                    // this is a bit of a hack.  if the title changes (maybe correcting a typo)
+                    // we want to be able to invalid client caches.  this change won't
+                    // necessarily have an immediate effect though
+                    if (!info.Url.Equals(p.Title)) {
+                        changed = true;
+                        info = new PhotoInfo(p.PhotoId, p.MediumUrl, p.Title);
+                        this.photos[p.PhotoId] = info;
+                    }
                 }
             }
             
+            // REVIEW - consider always overwriting the local data with the remote info,
+            // that way we don't have to worry about local caches getting into a bad state
+            
+            if (newPhotos.Count > 0 || changed) {
+                Save ();
+            }
             if (newPhotos.Count > 0) {
-                Save();
                 Added(newPhotos);
             }
         }
@@ -77,10 +97,12 @@ namespace Funny
 
     
     public class PhotoInfo {
+        public string Id { get; private set;}
         public string Url { get; private set;}
         public string Caption {get; private set;}
         
-        public PhotoInfo(string url, string caption) {
+        public PhotoInfo(string id, string url, string caption) {
+            Id = id;
             Url = url;
             Caption = caption;
         }
@@ -99,12 +121,20 @@ namespace Funny
             } else {
                 throw new Exception("caption missing");
             }
+            
+            NSObject id;
+            if (dictionary.TryGetValue(new NSString("id"), out id)) {
+                Id = id.ToString();
+            } else {
+                throw new Exception("id missing");
+            }
         }
         
         public NSDictionary Serialize() {
             NSMutableDictionary dict = new NSMutableDictionary();
             dict[new NSString("url")] = new NSString(Url);
             dict[new NSString("caption")] = new NSString(Caption);
+            dict[new NSString("id")] = new NSString(Id);
             return dict;
         }
     }
