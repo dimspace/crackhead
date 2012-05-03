@@ -7,7 +7,7 @@ using MonoTouch.CoreGraphics;
 
 namespace Funny
 {
-    public class CaptionedImage : UIView, IResizable
+    public class CaptionedImage : UIView
     {
         private readonly UIImage image;
         private readonly UIImageView imageView;
@@ -38,6 +38,7 @@ namespace Funny
             captionLabel.Opaque = false;
             captionLabel.ContentMode = UIViewContentMode.Center;
             captionLabel.TextAlignment = UITextAlignment.Center;
+            captionLabel.BackgroundColor = UIColor.Clear;
                     
     //                        lblCaption.Center = new PointF(bounds.Width / 2, bounds.Height + lblCaption.Frame.Height);
             PositionCaption(imageView.Frame);
@@ -52,12 +53,6 @@ namespace Funny
             var frame = new RectangleF(bounds.X + 5, y,
                                                   bounds.Width - 10, 50);
             captionLabel.Frame = frame;
-        }
-        
-        public void Resize(SizeF size, double duration) {
-            this.Frame.Size = size;
-            this.imageView.Frame = GetImageFrame(size);
-            PositionCaption(imageView.Frame);
         }
         
         private RectangleF GetImageFrame(SizeF size) {

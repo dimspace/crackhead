@@ -64,11 +64,6 @@ namespace Funny
             scrollView.DirectionalLockEnabled = true;
             scrollView.ShowsVerticalScrollIndicator = false;
             scrollView.ShowsHorizontalScrollIndicator = false;
-//            scrollView.BackgroundColor = UIColor.Cyan;
-//            this.BackgroundColor = UIColor.Blue;
-
-//            BackgroundColor = UIColor.White;
-//            AutosizesSubviews = true;
             
             scrollView.Delegate = new ScrollViewDelegate(this);
             AddSubview(scrollView);
@@ -87,7 +82,7 @@ namespace Funny
             
             UIView currentImage = views[index];
             
-            // this animation is a little akward because the origin shifts in the scroll view
+            // this animation is a little awkward because the origin shifts in the scroll view
             CGAffineTransform t = CGAffineTransform.MakeIdentity();
             UIView.BeginAnimations("resize");
             
@@ -95,11 +90,14 @@ namespace Funny
             currentImage.Frame = new RectangleF(index * size.Width, 0, size.Width, size.Height);
                         
             UIView.SetAnimationDuration(duration);
+            
+            // make sure RotateDidFinish is called at the end of the animation to unhide the other views
             UIView.SetAnimationDidStopSelector(new MonoTouch.ObjCRuntime.Selector("rotateFinished"));
             UIView.CommitAnimations ();
             
             this.Frame = new RectangleF(Frame.X, Frame.Y, size.Width, size.Height);
             
+            // hide all views but the current one - they'll mess up the animation
             for (int i = 0; i < dataSource.Count; i++) {
                 if (null != views[i] && index != i) {
                     views[i].Frame = new RectangleF(i * size.Width, 0, size.Width, size.Height);

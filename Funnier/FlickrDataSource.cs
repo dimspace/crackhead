@@ -12,6 +12,7 @@ namespace Funny
     
     public class FlickrDataSource
     {
+        private const string PhotosDefaultsKey = "Photos";
         /// <summary>
         /// Dictionary of photo ids to photos.
         /// </summary>
@@ -24,7 +25,7 @@ namespace Funny
         public FlickrDataSource ()
         {            
             flickr = new Flickr (FlickrAuth.apiKey, FlickrAuth.sharedSecret);
-            var photos = NSUserDefaults.StandardUserDefaults["Photos"] as NSArray;
+            var photos = NSUserDefaults.StandardUserDefaults[PhotosDefaultsKey] as NSArray;
             if (null != photos) {
                 for (uint i = 0; i < photos.Count; i++) {
                     IntPtr ptr = photos.ValueAt(i);
@@ -41,6 +42,9 @@ namespace Funny
             }
         }
         
+        /// <summary>
+        /// Fetch photo information from Flickr and persist it to local storage if there are new photos.
+        /// </summary>
         public void Fetch() {
             PhotosetPhotoCollection photos;
             try {
@@ -81,6 +85,9 @@ namespace Funny
             }
         }
         
+        /// <summary>
+        /// Save all of the photo information to user defaults.
+        /// </summary>
         public void Save() {
             
             NSMutableArray arr = new NSMutableArray();
@@ -89,13 +96,14 @@ namespace Funny
                 arr.Add(info.Serialize());
             }
             
-            NSUserDefaults.StandardUserDefaults["Photos"] = arr;
+            NSUserDefaults.StandardUserDefaults[PhotosDefaultsKey] = arr;
             NSUserDefaults.StandardUserDefaults.Synchronize();
         }
     }
     
-
-    
+    /// <summary>
+    /// Photo information.  Supports serializing to (and from) an NSDictionary.
+    /// </summary>
     public class PhotoInfo {
         public string Id { get; private set;}
         public string Url { get; private set;}
@@ -108,26 +116,9 @@ namespace Funny
         }
         
         public PhotoInfo(NSDictionary dictionary) {
-            NSObject url;
-            if (dictionary.TryGetValue(new NSString("url"), out url)) {
-                Url = url.ToString();
-            } else {
-                throw new Exception("url missing");
-            }
-            
-            NSObject caption;
-            if (dictionary.TryGetValue(new NSString("caption"), out caption)) {
-                Caption = caption.ToString();
-            } else {
-                throw new Exception("caption missing");
-            }
-            
-            NSObject id;
-            if (dictionary.TryGetValue(new NSString("id"), out id)) {
-                Id = id.ToString();
-            } else {
-                throw new Exception("id missing");
-            }
+            Id = dictionary[new NSString("id")].ToString();
+            Caption = dictionary[new NSString("caption")].ToString();
+            Url = dictionary[new NSString("url")].ToString();
         }
         
         public NSDictionary Serialize() {

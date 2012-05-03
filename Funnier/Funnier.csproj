@@ -69,10 +69,6 @@
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="FlickrAuth.cs" />
-    <Compile Include="ScrollingImageViewController.cs" />
-    <Compile Include="ScrollingImageViewController.designer.cs">
-      <DependentUpon>ScrollingImageViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="FileCacher.cs" />
     <Compile Include="CaptionedImage.cs" />
     <Compile Include="IResizable.cs" />
