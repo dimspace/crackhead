@@ -79,6 +79,7 @@
       <DependentUpon>ImageViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="FlickrDataSource.cs" />
+    <Compile Include="Reachability.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />

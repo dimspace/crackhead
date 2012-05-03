@@ -67,6 +67,13 @@ namespace Funny
             imageView.Frame = GetImageFrame(Frame.Size);
             PositionCaption(imageView.Frame);
         }
+        
+#if DEBUG
+        public override string ToString ()
+        {
+            return captionLabel.Text;
+        }
+#endif
     }
 }
 

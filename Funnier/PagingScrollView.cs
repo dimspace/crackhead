@@ -53,6 +53,9 @@ namespace Funny
             base.LayoutSubviews ();
             
             scrollView.Frame = Frame;
+#if DEBUG
+            Console.WriteLine("layout " + Frame);
+#endif
         }
         
         public PagingScrollView()
@@ -69,54 +72,74 @@ namespace Funny
             AddSubview(scrollView);
         }
         
+        public void FreeUnusedViews() {
+            // FIXME remove all off screen views in the scroll viewer
+        }
+        
         public int GetImageIndex() {
             if (dataSource == null) return 0;            
             float index = scrollView.ContentOffset.X / (scrollView.ContentSize.Width / dataSource.Count);
             return (int)index;
         }
         
+
         /// <summary>
-        /// Holds the index of the current view while a resize is occurring.
+        /// Animate a resize (usually for a screen rotation).
         /// </summary>
-        private int currentViewIndex;
-        
+        /// <param name='size'>
+        /// Size.
+        /// </param>
+        /// <param name='duration'>
+        /// Duration.
+        /// </param>
         public void Resize(SizeF size, double duration) {
             if (null == dataSource) return;
             
             int currentViewIndex = GetImageIndex();
             
             UIView currentImage = views[currentViewIndex];
+            
             currentImage.RemoveFromSuperview();
             AddSubview(currentImage);
             BringSubviewToFront(currentImage);
             currentImage.Frame = new RectangleF(0, 0, currentImage.Frame.Width, currentImage.Frame.Height);
             
-            scrollView.Hidden = true;
+#if DEBUG
+            Console.WriteLine("Current index = {0}", currentViewIndex);
+            Console.WriteLine("Current view = {0} {1}", currentImage, currentImage.Frame);
+#endif
+            
+            //scrollView.Hidden = true;
+            scrollView.RemoveFromSuperview();
+            
             SetNeedsDisplay();
             
-            UIView.Animate(duration, 0, UIViewAnimationOptions.LayoutSubviews,
+            Animate(duration, 0, UIViewAnimationOptions.TransitionNone,
                 delegate() {
                     currentImage.Frame = new RectangleF(0, 0, size.Width, size.Height);
                 }, 
                 delegate() {
+#if DEBUG
+                    Console.WriteLine("animation done");
+#endif
                     currentImage.RemoveFromSuperview();
                     scrollView.AddSubview(currentImage);
                     currentImage.Frame = new RectangleF(currentViewIndex * Frame.Width, 0, currentImage.Frame.Width, currentImage.Frame.Height);
                     
+                    for (int i = 0; i < dataSource.Count; i++) {
+                        if (null != views[i] && currentViewIndex != i) {
+                            views[i].Frame = new RectangleF(i * size.Width, 0, size.Width, size.Height);
+                        }
+                    }
+            
+                    scrollView.ContentSize = new SizeF(size.Width * dataSource.Count, size.Height);
+
                     scrollView.ContentOffset = new PointF(currentViewIndex * Frame.Width, 0);
-                    scrollView.Hidden = false;
+                    AddSubview(scrollView);
+                    //scrollView.Hidden = false;
                 });
             
-            this.Frame = new RectangleF(Frame.X, Frame.Y, size.Width, size.Height);
-            
-            // hide all views but the current one - they'll mess up the animation
-            for (int i = 0; i < dataSource.Count; i++) {
-                if (null != views[i] && currentViewIndex != i) {
-                    views[i].Frame = new RectangleF(i * size.Width, 0, size.Width, size.Height);
-                }
-            }
-            
-            scrollView.ContentSize = new SizeF(size.Width * dataSource.Count, size.Height);
+            this.Frame = new RectangleF(Frame.X, Frame.Y, size.Width, size.Height);            
         }
         
         

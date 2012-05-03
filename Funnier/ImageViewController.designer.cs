@@ -8,11 +8,18 @@ using MonoTouch.Foundation;
 
 namespace Funny
 {
-    [Register ("ImageViewController")]
-    partial class ImageViewController
-    {
-        void ReleaseDesignerOutlets ()
-        {
-        }
-    }
+ [Register ("ImageViewController")]
+ partial class ImageViewController
+ {
+     [Outlet]
+     MonoTouch.UIKit.UIToolbar toolbar { get; set; }
+     
+     void ReleaseDesignerOutlets ()
+     {
+         if (toolbar != null) {
+             toolbar.Dispose ();
+             toolbar = null;
+         }
+     }
+ }
 }

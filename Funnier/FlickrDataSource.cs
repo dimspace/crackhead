@@ -78,7 +78,7 @@ namespace Funny
             // that way we don't have to worry about local caches getting into a bad state
             
             if (newPhotos.Count > 0 || changed) {
-                Save ();
+                Save();
             }
             if (newPhotos.Count > 0) {
                 Added(newPhotos);

@@ -24,7 +24,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <connections>
-                        <outlet property="toolbar" destination="Ic3-EZ-di1" id="e67-Hd-xib"/>
+                        <outlet property="toolbar" destination="Ic3-EZ-di1" id="fMd-zK-mdj"/>
                     </connections>
                 </viewController>
             </objects>
@@ -34,6 +34,9 @@
     <classes>
         <class className="ImageViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/ImageViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="toolbar" candidateClass="UIToolbar"/>
+            </relationships>
         </class>
     </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

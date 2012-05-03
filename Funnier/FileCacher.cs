@@ -11,6 +11,7 @@ namespace Funny
         /// <summary>
         /// Loads the NSData for the given URL, looking first on the file system.  If the url is 
         /// remotely fetched it is cached on the FS.
+        /// If the url isn't cached and the wifi network isn't available, null is returned.
         /// </summary>
         /// <returns>
         /// The URL.
@@ -21,7 +22,7 @@ namespace Funny
         /// <param name='prefix'>
         /// Prefix.
         /// </param>
-        public static NSData LoadUrl(string url, string prefix = null) {
+        public static NSData LoadUrl(string url, bool downloadCacheMisses = true, string prefix = null) {
             int index = url.LastIndexOf("/");
             var fileName = url.Substring(index);
             
@@ -37,7 +38,7 @@ namespace Funny
                 byte[] bytes = File.ReadAllBytes(path);
                 return NSData.FromArray(bytes);
             } 
-            else 
+            else if (downloadCacheMisses)
             {
                 try {
                     var data = NSData.FromUrl (new NSUrl (url));
@@ -51,6 +52,7 @@ namespace Funny
                     UIApplication.SharedApplication.NetworkActivityIndicatorVisible = false;
                 }
             }
+            return null;
         }
     }
 }

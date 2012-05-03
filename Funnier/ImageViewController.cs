@@ -38,37 +38,25 @@ namespace Funny
             base.DidReceiveMemoryWarning ();
             
             // Release any cached data, images, etc that aren't in use.
-        }
-        
-        public override void SetValueForKey (NSObject value, NSString key)
-        {
-            try {
-                base.SetValueForKey (value, key);
-            } catch (Exception ex) {
-                Console.WriteLine(ex);
-            }
-        }
-        
-        static bool Network {
-            set {
-                UIApplication.SharedApplication.NetworkActivityIndicatorVisible = value;
-            }
+            scrollView.FreeUnusedViews();
         }
         
         
         private void StartLoading() {
-
+            NetworkStatus status = Reachability.RemoteHostStatus();
+            if (NetworkStatus.ReachableViaWiFiNetwork != status) {
+                Console.WriteLine("Skipping download.  Network status: {0}", status);
+                return;
+            }
+            
             ThreadPool.QueueUserWorkItem(
                 delegate {
                     try {
                         dataSource.Fetch();
-                        InvokeOnMainThread (delegate {
-//                            scrollView.DataSource = new DataSource(photos);
-                        });
                     } catch (System.Net.WebException ex) {
                         Console.WriteLine(ex);
                         InvokeOnMainThread (delegate {
-                            using (var alert = new UIAlertView ("Error", "While accessing Flickr - " + ex.Message, null, "Ok")) {
+                            using (var alert = new UIAlertView ("Error", "Unable to download cartoons - " + ex.Message, null, "Ok")) {
                                 alert.Show ();
                             }
                         });                    
@@ -76,12 +64,10 @@ namespace Funny
                     catch (Exception ex) {
                         Console.WriteLine(ex);
                         InvokeOnMainThread (delegate {
-                            using (var alert = new UIAlertView ("Error", "While accessing Flickr - " + ex.Message, null, "Ok")) {
+                            using (var alert = new UIAlertView ("Error", "Unable to download cartoons - " + ex.Message, null, "Ok")) {
                                 alert.Show ();
                             }
                         });
-                    } finally {
-//                        Network = false;
                     }
                 });
         }
@@ -90,7 +76,9 @@ namespace Funny
         {
             base.ViewDidLoad ();            
             
-//            View.AutosizesSubviews = true;
+#if DEBUG
+            Console.WriteLine("Image controller view did load");
+#endif
             
             scrollView = new PagingScrollView();
             
@@ -156,10 +144,16 @@ namespace Funny
             }
         
             public void AddPhotos(ICollection<PhotoInfo> newPhotos) {
+                NetworkStatus status = Reachability.RemoteHostStatus();
                 foreach (PhotoInfo p in newPhotos) {
-                    NSData data = FileCacher.LoadUrl(p.Url);
-                    var image = UIImage.LoadFromData (data);
-                    this.photos.Add(new PhotoImage(p, image));
+                    // on a cache miss, only download if a wifi network is available
+                    NSData data = FileCacher.LoadUrl(p.Url, NetworkStatus.ReachableViaWiFiNetwork == status);
+                    if (null == data) {
+                        Console.WriteLine("Image was null.  Network status: {0}", status);
+                    } else {
+                        var image = UIImage.LoadFromData (data);
+                        this.photos.Add(new PhotoImage(p, image));
+                    }
                 }
                 if (null != OnChanged) {
                     OnChanged();
