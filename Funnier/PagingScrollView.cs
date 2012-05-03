@@ -75,49 +75,50 @@ namespace Funny
             return (int)index;
         }
         
+        /// <summary>
+        /// Holds the index of the current view while a resize is occurring.
+        /// </summary>
+        private int currentViewIndex;
+        
         public void Resize(SizeF size, double duration) {
             if (null == dataSource) return;
             
-            int index = GetImageIndex();
+            int currentViewIndex = GetImageIndex();
             
-            UIView currentImage = views[index];
+            UIView currentImage = views[currentViewIndex];
+            currentImage.RemoveFromSuperview();
+            AddSubview(currentImage);
+            BringSubviewToFront(currentImage);
+            currentImage.Frame = new RectangleF(0, 0, currentImage.Frame.Width, currentImage.Frame.Height);
             
-            // this animation is a little awkward because the origin shifts in the scroll view
-            CGAffineTransform t = CGAffineTransform.MakeIdentity();
-            UIView.BeginAnimations("resize");
+            scrollView.Hidden = true;
+            SetNeedsDisplay();
             
-            currentImage.Transform = t;
-            currentImage.Frame = new RectangleF(index * size.Width, 0, size.Width, size.Height);
-                        
-            UIView.SetAnimationDuration(duration);
-            
-            // make sure RotateDidFinish is called at the end of the animation to unhide the other views
-            UIView.SetAnimationDidStopSelector(new MonoTouch.ObjCRuntime.Selector("rotateFinished"));
-            UIView.CommitAnimations ();
+            UIView.Animate(duration, 0, UIViewAnimationOptions.LayoutSubviews,
+                delegate() {
+                    currentImage.Frame = new RectangleF(0, 0, size.Width, size.Height);
+                }, 
+                delegate() {
+                    currentImage.RemoveFromSuperview();
+                    scrollView.AddSubview(currentImage);
+                    currentImage.Frame = new RectangleF(currentViewIndex * Frame.Width, 0, currentImage.Frame.Width, currentImage.Frame.Height);
+                    
+                    scrollView.ContentOffset = new PointF(currentViewIndex * Frame.Width, 0);
+                    scrollView.Hidden = false;
+                });
             
             this.Frame = new RectangleF(Frame.X, Frame.Y, size.Width, size.Height);
             
             // hide all views but the current one - they'll mess up the animation
             for (int i = 0; i < dataSource.Count; i++) {
-                if (null != views[i] && index != i) {
+                if (null != views[i] && currentViewIndex != i) {
                     views[i].Frame = new RectangleF(i * size.Width, 0, size.Width, size.Height);
-                    views[i].Hidden = true;
                 }
             }
-                        
-            scrollView.ContentOffset = new PointF(index * size.Width, 0);
+            
             scrollView.ContentSize = new SizeF(size.Width * dataSource.Count, size.Height);
         }
         
-        [Export("rotateFinished")]
-        public void RotateDidFinish()
-        {
-            for (int i = 0; i < dataSource.Count; i++) {
-                if (null != views[i]) {
-                    views[i].Hidden = false;
-                }
-            }
-        }
         
         private class ScrollViewDelegate : UIScrollViewDelegate {
             private readonly PagingScrollView view;
@@ -134,8 +135,6 @@ namespace Funny
                     if (null == view.views[i]) {
                         view.views[i] = view.dataSource.GetView(i);
                         view.scrollView.AddSubview(view.views[i]);
-                    } else {
-                        view.views[i].Hidden = false;
                     }
                     
                     view.views[i].Frame = new RectangleF(x, 0, view.Frame.Width, view.Frame.Height);
