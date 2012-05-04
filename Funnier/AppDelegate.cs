@@ -31,6 +31,11 @@ namespace Funny
         //
         public override bool FinishedLaunching (UIApplication application, NSDictionary launchOptions)
         {
+#if DEBUG
+            Console.WriteLine("Application started on thread {0}:{1}", 
+                              System.Threading.Thread.CurrentThread.ManagedThreadId, System.Threading.Thread.CurrentThread.Name);
+#endif
+
             FetchCartoonsIfConnected();
             return true;
         }

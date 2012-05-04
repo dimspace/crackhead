@@ -40,7 +40,12 @@ namespace Funny
             } 
             else if (downloadCacheMisses)
             {
+#if DEBUG
+                Console.WriteLine("FromUrl on thread {0}:{1}", 
+                              System.Threading.Thread.CurrentThread.ManagedThreadId, System.Threading.Thread.CurrentThread.Name);
+#endif
                 try {
+                    UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;
                     var data = NSData.FromUrl (new NSUrl (url));
                     
                     byte[] dataBytes = new byte[data.Length];
