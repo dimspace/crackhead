@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Threading;
 
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
@@ -10,21 +11,37 @@ namespace Funny
     public class CaptionedImage : UIView
     {
         private const int CaptionHeight = 70;
-        private readonly UIImage image;
-        private readonly UIImageView imageView;
+        private UIImage image;
+        private UIImageView imageView;
         private readonly UILabel captionLabel;
         
-        public CaptionedImage (UIImage image, string caption)
+        public CaptionedImage (PhotoInfo photoInfo)
         {
-            this.image = image;
-            imageView = new UIImageView(image);
-            imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+            NSData data = FileCacher.LoadUrl(photoInfo.Url, false);
             
-            imageView.Frame = GetImageFrame(Frame.Size);
-            AddSubview(imageView);
+            if (null == data) {
+                if (Reachability.RemoteHostStatus().Equals(NetworkStatus.ReachableViaWiFiNetwork)) {
+                    ThreadPool.QueueUserWorkItem(delegate {
+                        data = FileCacher.LoadUrl(photoInfo.Url, true);
+                        if (null == data) {
+                            // this is not expected
+                        } else {
+                            InvokeOnMainThread(delegate {
+                                SetImage(data); 
+                            });
+                        }
+                    });
+                } else {
+                    // FIXME otherwise - display a different image?  can't download right now
+                    // this should be somewhat uncommon, because it means we downloaded the 
+                    // photo info (which required a network connection), but not the photo
+                }
+            } else {
+                SetImage(data);
+            }
             
             captionLabel = new UILabel();
-            captionLabel.Text = caption;
+            captionLabel.Text = photoInfo.Caption;
             //Times New Roman  TimesNewRomanPS-ItalicMT
 //Times New Roman  TimesNewRomanPS-BoldMT
 //Times New Roman  TimesNewRomanPSMT
@@ -37,8 +54,10 @@ namespace Funny
             captionLabel.TextAlignment = UITextAlignment.Center;
 
             captionLabel.BackgroundColor = UIColor.Clear;
-
-            PositionCaption(imageView.Frame);
+   
+            if (null != imageView) {
+                PositionCaption(imageView.Frame);
+            }
             AddSubview(captionLabel);
             
 #if DEBUG
@@ -46,6 +65,15 @@ namespace Funny
 //            this.BackgroundColor = UIColor.Green;
 #endif
 
+        }
+        
+        private void SetImage(NSData data) {
+            this.image = UIImage.LoadFromData(data);
+            imageView = new UIImageView(image);
+            imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+        
+            imageView.Frame = GetImageFrame(Frame.Size);
+            AddSubview(imageView);
         }
         
         private void PositionCaption(RectangleF bounds) {
@@ -66,9 +94,10 @@ namespace Funny
         public override void LayoutSubviews ()
         {
             base.LayoutSubviews ();
-            
-            imageView.Frame = GetImageFrame(Frame.Size);
-            PositionCaption(imageView.Frame);
+            if (null != image) {
+                imageView.Frame = GetImageFrame(Frame.Size);
+                PositionCaption(imageView.Frame);
+            }
         }
         
 #if DEBUG

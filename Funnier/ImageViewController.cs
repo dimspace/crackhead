@@ -99,11 +99,11 @@ namespace Funny
         }
         
         private class DataSource : PagingViewDataSource {
-            private readonly List<PhotoImage> photos;
+            private readonly List<PhotoInfo> photos;
             public event Changed OnChanged;
             
             public DataSource(ICollection<PhotoInfo> photos) {
-                this.photos = new List<PhotoImage>();
+                this.photos = new List<PhotoInfo>();
                 
                 AddPhotos(photos);
             }
@@ -115,34 +115,31 @@ namespace Funny
             }
         
             public void AddPhotos(ICollection<PhotoInfo> newPhotos) {
-                NetworkStatus status = Reachability.RemoteHostStatus();
-                foreach (PhotoInfo p in newPhotos) {
-                    // on a cache miss, only download if a wifi network is available
-                    NSData data = FileCacher.LoadUrl(p.Url, NetworkStatus.ReachableViaWiFiNetwork == status);
-                    if (null == data) {
-                        Console.WriteLine("Image was null.  Network status: {0}", status);
-                    } else {
-                        var image = UIImage.LoadFromData (data);
-                        this.photos.Add(new PhotoImage(p, image));
-                    }
-                }
+                this.photos.AddRange(newPhotos);
+                ThreadPool.QueueUserWorkItem(delegate {
+                    FetchImages();
+                });
                 if (null != OnChanged) {
                     OnChanged();
+                }                 
+            }
+            
+            private void FetchImages() {
+                NetworkStatus status = Reachability.RemoteHostStatus();
+                foreach (PhotoInfo p in this.photos) {
+                    // on a cache miss, only download if a wifi network is available
+                    // this just warms the cache.  The CaptionImage will use it later
+                    NSData data = FileCacher.LoadUrl(p.Url, NetworkStatus.ReachableViaWiFiNetwork == status);
+#if DEBUG
+                    if (null == data) {                        
+                        Console.WriteLine("Image was null.  Network status: {0}", status);
+                    }
+#endif
                 }
             }
             
             public UIView GetView(int index) {
-                return new CaptionedImage(photos[index].image, photos[index].photo.Caption);
-            }
-            
-            private class PhotoImage {
-                internal readonly PhotoInfo photo;
-                internal readonly UIImage image;
-                
-                public PhotoImage(PhotoInfo photo, UIImage image) {
-                    this.photo = photo;
-                    this.image = image;
-                }
+                return new CaptionedImage(photos[index]);
             }
         }
     }
