@@ -16,8 +16,7 @@ namespace Funny
         
         public ImageViewController(IntPtr handle) : base (handle)
         {
-            dataSource = new FlickrDataSource();
-            dataSource.Added += PhotosAdded;
+            dataSource = FlickrDataSource.Get();
         }
         
         private void PhotosAdded(List<PhotoInfo> photos) {
@@ -42,36 +41,6 @@ namespace Funny
         }
         
         
-        private void StartLoading() {
-            NetworkStatus status = Reachability.RemoteHostStatus();
-            if (NetworkStatus.ReachableViaWiFiNetwork != status) {
-                Console.WriteLine("Skipping download.  Network status: {0}", status);
-                return;
-            }
-            
-            ThreadPool.QueueUserWorkItem(
-                delegate {
-                    try {
-                        dataSource.Fetch();
-                    } catch (System.Net.WebException ex) {
-                        Console.WriteLine(ex);
-                        InvokeOnMainThread (delegate {
-                            using (var alert = new UIAlertView ("Error", "Unable to download cartoons - " + ex.Message, null, "Ok")) {
-                                alert.Show ();
-                            }
-                        });                    
-                    }
-                    catch (Exception ex) {
-                        Console.WriteLine(ex);
-                        InvokeOnMainThread (delegate {
-                            using (var alert = new UIAlertView ("Error", "Unable to download cartoons - " + ex.Message, null, "Ok")) {
-                                alert.Show ();
-                            }
-                        });
-                    }
-                });
-        }
-        
         public override void ViewDidLoad ()
         {
             base.ViewDidLoad ();            
@@ -89,10 +58,10 @@ namespace Funny
             
             View.AddSubview(scrollView);
             
+            dataSource.Added += PhotosAdded;
             if (dataSource.Photos.Count > 0) {
                 scrollView.DataSource = new DataSource(dataSource.Photos);
             }
-            StartLoading();
         }
         
         public override void ViewDidUnload ()
@@ -104,6 +73,8 @@ namespace Funny
             //
             // e.g. myOutlet.Dispose (); myOutlet = null;
             
+            // remove our event listener.  very important
+            dataSource.Added -= PhotosAdded;
             ReleaseDesignerOutlets ();
         }
         

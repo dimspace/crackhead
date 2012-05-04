@@ -1,22 +1,22 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Funnier/FlickrDataSource.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Funnier/CaptionedImage.cs">
     <Files>
       <File FileName="FlickrNet/Auth.cs" Line="1" Column="1" />
       <File FileName="FlickrNet/ActivityEvent.cs" Line="1" Column="1" />
       <File FileName="FlickrNet/Flickr.cs" Line="1" Column="1" />
-      <File FileName="Funnier/ScrollingImageViewController.cs" Line="293" Column="1" />
-      <File FileName="Funnier/ScrollingImageViewController.designer.cs" Line="34" Column="1" />
       <File FileName="Funnier/Info.plist" />
-      <File FileName="Funnier/FileCacher.cs" Line="38" Column="48" />
+      <File FileName="Funnier/FileCacher.cs" Line="55" Column="25" />
       <File FileName="FlickrNet/Photo.cs" Line="496" Column="45" />
-      <File FileName="Funnier/CaptionedImage.cs" Line="47" Column="58" />
-      <File FileName="Funnier/IResizable.cs" Line="12" Column="39" />
-      <File FileName="Funnier/PagingScrollView.cs" Line="47" Column="18" />
-      <File FileName="Funnier/PagingViewDataSource.cs" Line="12" Column="32" />
-      <File FileName="Funnier/ImageViewController.cs" Line="102" Column="1" />
-      <File FileName="Funnier/ImageViewController.designer.cs" Line="1" Column="1" />
-      <File FileName="Funnier/FlickrDataSource.cs" Line="28" Column="17" />
+      <File FileName="Funnier/CaptionedImage.cs" Line="34" Column="67" />
+      <File FileName="Funnier/IResizable.cs" Line="11" Column="64" />
+      <File FileName="Funnier/PagingScrollView.cs" Line="87" Column="52" />
+      <File FileName="Funnier/PagingViewDataSource.cs" Line="16" Column="18" />
+      <File FileName="Funnier/ImageViewController.cs" Line="41" Column="39" />
+      <File FileName="Funnier/ImageViewController.designer.cs" Line="26" Column="1" />
+      <File FileName="Funnier/FlickrDataSource.cs" Line="81" Column="21" />
+      <File FileName="Funnier/FlickrAuth.cs" Line="1" Column="1" />
+      <File FileName="Funnier/Reachability.cs" Line="27" Column="3" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -24,9 +24,8 @@
           <Node name="Funnier" expanded="True">
             <Node name="References" expanded="True" />
             <Node name="icons" expanded="True" />
-            <Node name="FlickrDataSource.cs" selected="True" />
+            <Node name="CaptionedImage.cs" selected="True" />
             <Node name="ImageViewController.cs" expanded="True" />
-            <Node name="ScrollingImageViewController.cs" expanded="True" />
           </Node>
         </State>
       </Pad>
@@ -55,13 +54,7 @@
       <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/ScrollingImageViewController.cs" line="320" />
       <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/ScrollingImageViewController.cs" line="104" />
       <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/ScrollingImageViewController.cs" line="303" />
-      <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/ImageViewController.cs" line="102" />
-      <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/PagingScrollView.cs" line="119" />
-      <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/CaptionedImage.cs" line="60" />
-      <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/FlickrDataSource.cs" line="27" />
-      <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/FlickrDataSource.cs" line="83" />
-      <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/FlickrDataSource.cs" line="45" />
-      <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/FlickrDataSource.cs" line="54" />
+      <Breakpoint file="/Users/sdaubin/Projects/Funnier/Funnier/ImageViewController.cs" line="52" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

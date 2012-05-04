@@ -80,6 +80,10 @@
     </Compile>
     <Compile Include="FlickrDataSource.cs" />
     <Compile Include="Reachability.cs" />
+    <Compile Include="SplashScreenController.cs" />
+    <Compile Include="SplashScreenController.designer.cs">
+      <DependentUpon>SplashScreenController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />
@@ -94,10 +98,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />
+    <Folder Include="images\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="icons\icon-72.png" />
     <Content Include="icons\icon.png" />
     <Content Include="icons\icon%402x.png" />
+    <Content Include="images\funnier.png" />
   </ItemGroup>
 </Project>

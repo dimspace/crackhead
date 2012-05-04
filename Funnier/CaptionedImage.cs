@@ -9,6 +9,7 @@ namespace Funny
 {
     public class CaptionedImage : UIView
     {
+        private const int CaptionHeight = 70;
         private readonly UIImage image;
         private readonly UIImageView imageView;
         private readonly UILabel captionLabel;
@@ -17,6 +18,10 @@ namespace Funny
         {
             this.image = image;
             imageView = new UIImageView(image);
+            imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
+            
+            imageView.Frame = GetImageFrame(Frame.Size);
+            AddSubview(imageView);
             
             captionLabel = new UILabel();
             captionLabel.Text = caption;
@@ -26,32 +31,30 @@ namespace Funny
 //Times New Roman  TimesNewRomanPS-BoldItalicMT
             captionLabel.Font = UIFont.FromName("TimesNewRomanPS-ItalicMT", 14);
             
-            imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
-            imageView.Frame = GetImageFrame(Frame.Size);
-            AddSubview(imageView);
+            captionLabel.LineBreakMode = UILineBreakMode.WordWrap;
+            captionLabel.Lines = 2;
+            captionLabel.ContentMode = UIViewContentMode.Bottom;
+            captionLabel.TextAlignment = UITextAlignment.Center;
+
+            captionLabel.BackgroundColor = UIColor.Clear;
+
+            PositionCaption(imageView.Frame);
+            AddSubview(captionLabel);
             
 #if DEBUG
             // FIXME debugging
 //            this.BackgroundColor = UIColor.Green;
 #endif
-            
-            captionLabel.Opaque = false;
-            captionLabel.ContentMode = UIViewContentMode.Center;
-            captionLabel.TextAlignment = UITextAlignment.Center;
-            captionLabel.BackgroundColor = UIColor.Clear;
-                    
-    //                        lblCaption.Center = new PointF(bounds.Width / 2, bounds.Height + lblCaption.Frame.Height);
-            PositionCaption(imageView.Frame);
-            AddSubview(captionLabel);
+
         }
         
         private void PositionCaption(RectangleF bounds) {
             
             // prevent the text from running off the bottom of the screen in landscape mode
-            float y = Math.Min (bounds.Height-40, Frame.Height - 60);
+            float y = Math.Min (bounds.Height-40, Frame.Height - CaptionHeight - 10);
             
             var frame = new RectangleF(bounds.X + 5, y,
-                                                  bounds.Width - 10, 50);
+                                                  bounds.Width - 10, CaptionHeight);
             captionLabel.Frame = frame;
         }
         

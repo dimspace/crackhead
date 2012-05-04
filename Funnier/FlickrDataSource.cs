@@ -19,10 +19,16 @@ namespace Funny
         /// 
         private readonly Dictionary<string, PhotoInfo> photos = new Dictionary<string, PhotoInfo>();
         private readonly Flickr flickr;
+        private DateTime lastPhotoFetchTimestamp;
         
         public event PhotosAdded Added;
         
-        public FlickrDataSource ()
+        private readonly static FlickrDataSource singleton = new FlickrDataSource();
+        public static FlickrDataSource Get() {
+            return singleton;
+        }
+        
+        private FlickrDataSource ()
         {            
             flickr = new Flickr (FlickrAuth.apiKey, FlickrAuth.sharedSecret);
             var photos = NSUserDefaults.StandardUserDefaults[PhotosDefaultsKey] as NSArray;
@@ -36,6 +42,14 @@ namespace Funny
             }
         }
         
+        public bool Stale {
+            get {
+                // photos are stale if we've never fetched or it's been more than 12 hours
+                return lastPhotoFetchTimestamp == null ? true : 
+                        (DateTime.UtcNow - lastPhotoFetchTimestamp) > TimeSpan.FromHours(12);
+            }
+        }
+        
         public ICollection<PhotoInfo> Photos {
             get {
                 return photos.Values;
@@ -46,10 +60,11 @@ namespace Funny
         /// Fetch photo information from Flickr and persist it to local storage if there are new photos.
         /// </summary>
         public void Fetch() {
+            lastPhotoFetchTimestamp = DateTime.UtcNow;
             PhotosetPhotoCollection photos;
             try {
                 UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;
-                photos = flickr.PhotosetsGetPhotos("72157629877473203");
+                photos = flickr.PhotosetsGetPhotos(FlickrAuth.photosetId);
             } finally {
                 UIApplication.SharedApplication.NetworkActivityIndicatorVisible = false;
             }
@@ -80,7 +95,7 @@ namespace Funny
             if (newPhotos.Count > 0 || changed) {
                 Save();
             }
-            if (newPhotos.Count > 0) {
+            if (newPhotos.Count > 0 && null != Added) {
                 Added(newPhotos);
             }
         }
