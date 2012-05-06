@@ -54,6 +54,8 @@ namespace Funny
             captionLabel.TextAlignment = UITextAlignment.Center;
 
             captionLabel.BackgroundColor = UIColor.Clear;
+            //captionLabel.Layer.BorderColor = new CGColor (1f, 1f, 1f);
+            //captionLabel.Layer.BorderWidth = 2;
    
             if (null != imageView) {
                 PositionCaption(imageView.Frame);
@@ -95,8 +97,8 @@ namespace Funny
                 newWidth = size.Width;
                 newHeight = (image.Size.Height * size.Width) / image.Size.Width;
             }
-            if (newHeight > size.Height) {
-                newHeight = size.Height;
+            if (newHeight > (size.Height-20)) {
+                newHeight = size.Height-20;
                 newWidth = image.Size.Width * size.Height / image.Size.Height;
                 newXOrigin = (size.Width - newWidth) / 2;
             }
