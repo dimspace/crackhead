@@ -87,8 +87,21 @@ namespace Funny
         }
         
         private RectangleF GetImageFrame(SizeF size) {
-            float newHeight = (image.Size.Height * size.Width) / image.Size.Width;
-            return new RectangleF(0,0, size.Width, newHeight);
+            float newHeight = image.Size.Height;
+            float newWidth = image.Size.Width;
+            float newXOrigin = 0;
+                     
+            if (image.Size.Width > size.Width) { 
+                newWidth = size.Width;
+                newHeight = (image.Size.Height * size.Width) / image.Size.Width;
+            }
+            if (newHeight > size.Height) {
+                newHeight = size.Height;
+                newWidth = image.Size.Width * size.Height / image.Size.Height;
+                newXOrigin = (size.Width - newWidth) / 2;
+            }
+            
+            return new RectangleF(newXOrigin,0, newWidth, newHeight);
         }
         
         public override void LayoutSubviews ()
