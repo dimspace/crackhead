@@ -106,7 +106,7 @@ namespace Funny
             }
             
             return new RectangleF(newXOrigin,0, newWidth, newHeight);
-        }
+        } //
         
         public override void LayoutSubviews ()
         {
