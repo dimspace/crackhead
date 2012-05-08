@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 using FlickrNet;
@@ -62,10 +63,9 @@ namespace Funny
         public void Fetch() {
             lastPhotoFetchTimestamp = DateTime.UtcNow;
             PhotosetPhotoCollection photos;
-#if DEBUG
-                Console.WriteLine("Http request on thread {0}:{1}", 
+
+            Debug.WriteLine("Http request on thread {0}:{1}", 
                               System.Threading.Thread.CurrentThread.ManagedThreadId, System.Threading.Thread.CurrentThread.Name);
-#endif
 
             try {
                 UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;

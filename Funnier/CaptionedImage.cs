@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Diagnostics;
 using System.Threading;
 
 using MonoTouch.Foundation;
@@ -73,9 +74,7 @@ namespace Funny
                 return size;
             }
             size = GetImageFrame(size).Size;
-#if DEBUG
-            Console.WriteLine("SizeThatFits " + size);
-#endif
+            Debug.WriteLine("SizeThatFits " + size);
             return new SizeF(size.Width, size.Height + 25);
         }
         
@@ -119,9 +118,8 @@ namespace Funny
         public override void LayoutSubviews ()
         {
             base.LayoutSubviews ();
-#if DEBUG
-//            Console.WriteLine("CaptionedImage.LayoutSubviews");
-#endif
+
+//            Debug.WriteLine("CaptionedImage.LayoutSubviews");
             if (null != image) {
                 imageView.Frame = GetImageFrame(Frame.Size);
                 PositionCaption(imageView.Frame);

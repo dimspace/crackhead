@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Diagnostics;
 
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
@@ -39,7 +40,7 @@ namespace Funny
                     byte[] bytes = File.ReadAllBytes(path);
                     return NSData.FromArray(bytes);
                 } catch (Exception ex) {
-                    Console.WriteLine(ex);
+                    Debug.WriteLine(ex);
                     // okay, let's fall back to downloading the file
                     if (downloadCacheMisses)
                     {
@@ -57,10 +58,9 @@ namespace Funny
     
         private static NSData FetchUrl(string path, string url) 
         {
-#if DEBUG
-            Console.WriteLine("FromUrl on thread {0}:{1}", 
+
+            Debug.WriteLine("FromUrl on thread {0}:{1}", 
                           System.Threading.Thread.CurrentThread.ManagedThreadId, System.Threading.Thread.CurrentThread.Name);
-#endif
             try {
                 UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;
                 var data = NSData.FromUrl (new NSUrl (url));

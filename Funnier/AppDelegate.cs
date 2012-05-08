@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
@@ -31,10 +32,8 @@ namespace Funny
         //
         public override bool FinishedLaunching (UIApplication application, NSDictionary launchOptions)
         {
-#if DEBUG
-            Console.WriteLine("Application started on thread {0}:{1}", 
+            Debug.WriteLine("Application started on thread {0}:{1}", 
                               System.Threading.Thread.CurrentThread.ManagedThreadId, System.Threading.Thread.CurrentThread.Name);
-#endif
 
             FetchCartoonsIfConnected();
             return true;
@@ -56,9 +55,8 @@ namespace Funny
         /// This method is called as part of the transiton from background to active state.
         public override void WillEnterForeground (UIApplication application)
         {
-#if DEBUG
-                Console.WriteLine("FlickrDataSource.Stale = {0}", FlickrDataSource.Get().Stale);
-#endif
+            Debug.WriteLine("FlickrDataSource.Stale = {0}", FlickrDataSource.Get().Stale);
+
             if (FlickrDataSource.Get().Stale) {
                 FetchCartoonsIfConnected();
             }
@@ -67,9 +65,8 @@ namespace Funny
         private void FetchCartoonsIfConnected() {
             NetworkStatus status = Reachability.RemoteHostStatus();
             if (NetworkStatus.ReachableViaWiFiNetwork != status) {
-#if DEBUG
-                Console.WriteLine("Skipping download.  Network status: {0}", status);
-#endif
+
+                Debug.WriteLine("Skipping download.  Network status: {0}", status);
             } else {
                 System.Threading.ThreadPool.QueueUserWorkItem(
                     delegate {
@@ -83,7 +80,7 @@ namespace Funny
             try {
                 FlickrDataSource.Get().Fetch();
             } catch (System.Net.WebException ex) {
-                Console.WriteLine(ex);
+                Debug.WriteLine(ex);
                 InvokeOnMainThread (delegate {
                     using (var alert = new UIAlertView ("Error", "Unable to download cartoons - " + ex.Message, null, "Ok")) {
                         alert.Show ();
@@ -91,7 +88,7 @@ namespace Funny
                 });                    
             }
             catch (Exception ex) {
-                Console.WriteLine(ex);
+                Debug.WriteLine(ex);
                 InvokeOnMainThread (delegate {
                     using (var alert = new UIAlertView ("Error", "Unable to download cartoons - " + ex.Message, null, "Ok")) {
                         alert.Show ();

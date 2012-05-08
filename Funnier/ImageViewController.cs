@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
+using System.Diagnostics;
 
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
@@ -45,9 +46,7 @@ namespace Funny
         {
             base.ViewDidLoad ();            
             
-#if DEBUG
-            Console.WriteLine("Image controller view did load");
-#endif
+            Debug.WriteLine("Image controller view did load");
             
             scrollView = new PagingScrollView();
             
@@ -73,7 +72,7 @@ namespace Funny
          {
              if (sender.State == UIGestureRecognizerState.Ended)
              {
-                 Console.WriteLine("TAP");
+                 Debug.WriteLine("TAP");
              }
          }
         
@@ -143,11 +142,10 @@ namespace Funny
                     // on a cache miss, only download if a wifi network is available
                     // this just warms the cache.  The CaptionImage will use it later
                     NSData data = FileCacher.LoadUrl(p.Url, NetworkStatus.ReachableViaWiFiNetwork == status);
-#if DEBUG
+
                     if (null == data) {                        
-                        Console.WriteLine("Image was null.  Network status: {0}", status);
+                        Debug.WriteLine("Image was null.  Network status: {0}", status);
                     }
-#endif
                 }
             }
             

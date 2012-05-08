@@ -1,6 +1,6 @@
 using System;
 using System.Drawing; 
-
+using System.Diagnostics;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MonoTouch.CoreGraphics;
@@ -66,9 +66,8 @@ namespace Funny
             base.LayoutSubviews ();
             
             scrollView.Frame = Frame;
-#if DEBUG
-            Console.WriteLine("layout " + Frame);
-#endif
+
+            Debug.WriteLine("layout {0}", Frame);
         }
         
         public PagingScrollView()
@@ -117,10 +116,8 @@ namespace Funny
             BringSubviewToFront(currentImage);
             currentImage.Frame = new RectangleF(0, currentY, currentImage.Frame.Width, currentImage.Frame.Height);
             
-#if DEBUG
-            Console.WriteLine("Current index = {0}", currentViewIndex);
-            Console.WriteLine("Current view = {0} {1}", currentImage, currentImage.Frame);
-#endif
+            Debug.WriteLine("Current index = {0}", currentViewIndex);
+            Debug.WriteLine("Current view = {0} {1}", currentImage, currentImage.Frame);
             
             //scrollView.Hidden = true;
             scrollView.RemoveFromSuperview();
@@ -134,9 +131,8 @@ namespace Funny
                     currentImage.Frame = new RectangleF(0, newY, newSize.Width, newSize.Height);
                 }, 
                 delegate() {
-#if DEBUG
-                    Console.WriteLine("animation done");
-#endif
+                    Debug.WriteLine("animation done");
+
                     currentImage.RemoveFromSuperview();
                     scrollView.AddSubview(currentImage);
                     currentImage.Frame = new RectangleF(currentViewIndex * Frame.Width, newY, currentImage.Frame.Width, currentImage.Frame.Height);
