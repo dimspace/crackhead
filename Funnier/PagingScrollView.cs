@@ -37,8 +37,9 @@ namespace Funny
             }
         }
         
-        private float GetViewY(SizeF bounds) {
-            bool portrait = Frame.Width < Frame.Height;
+        private float GetViewY(SizeF bounds, SizeF? outerBounds = null) {
+            outerBounds = outerBounds ?? Frame.Size;
+            bool portrait = outerBounds.Value.Width < outerBounds.Value.Height;
             if (portrait) {
                 return (UIScreen.MainScreen.Bounds.Height - bounds.Height) / 2;
             } else {
@@ -110,7 +111,6 @@ namespace Funny
             int currentViewIndex = GetImageIndex();
             
             UIView currentImage = views[currentViewIndex];
-            
             float currentY = currentImage.Frame.Y;
             currentImage.RemoveFromSuperview();
             AddSubview(currentImage);
@@ -127,10 +127,11 @@ namespace Funny
             
             SetNeedsDisplay();
             SizeF newSize = currentImage.SizeThatFits(size);
+            float newY = GetViewY(newSize, size);
             
             Animate(duration, 0, UIViewAnimationOptions.TransitionNone,
                 delegate() {
-                    currentImage.Frame = new RectangleF(0, currentY, newSize.Width, newSize.Height);
+                    currentImage.Frame = new RectangleF(0, newY, newSize.Width, newSize.Height);
                 }, 
                 delegate() {
 #if DEBUG
@@ -138,12 +139,13 @@ namespace Funny
 #endif
                     currentImage.RemoveFromSuperview();
                     scrollView.AddSubview(currentImage);
-                    currentImage.Frame = new RectangleF(currentViewIndex * Frame.Width, 0, currentImage.Frame.Width, currentImage.Frame.Height);
+                    currentImage.Frame = new RectangleF(currentViewIndex * Frame.Width, newY, currentImage.Frame.Width, currentImage.Frame.Height);
                     
                     for (int i = 0; i < dataSource.Count; i++) {
                         if (null != views[i] && currentViewIndex != i) {
                             newSize = views[i].SizeThatFits(size);
-                            views[i].Frame = new RectangleF(i * size.Width, 0, newSize.Width, newSize.Height);
+                            newY = GetViewY(newSize, size);
+                            views[i].Frame = new RectangleF(i * size.Width, newY, newSize.Width, newSize.Height);
                         }
                     }
             
