@@ -100,7 +100,7 @@ namespace Funny
             if (newHeight > (size.Height-20)) {
                 newHeight = size.Height-20;
                 newWidth = image.Size.Width * size.Height / image.Size.Height;
-                newXOrigin = (size.Width - newWidth) / 2;
+                newXOrigin = (size.Width - newWidth) / 2; //
             }
             
             return new RectangleF(newXOrigin,0, newWidth, newHeight);
