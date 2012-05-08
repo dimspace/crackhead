@@ -50,7 +50,7 @@ namespace Funny
             captionLabel.Font = UIFont.FromName("TimesNewRomanPS-ItalicMT", 14);
             
             captionLabel.LineBreakMode = UILineBreakMode.WordWrap;
-            captionLabel.Lines = 2;
+            captionLabel.Lines = (int) captionLabel.Text.Length / 55 + 1; // formerly: 2;
             captionLabel.ContentMode = UIViewContentMode.Bottom;
             captionLabel.TextAlignment = UITextAlignment.Center;
 
