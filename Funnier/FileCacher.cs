@@ -35,29 +35,44 @@ namespace Funny
             var path = builder.ToString();
             if (File.Exists(path)) 
             {
-                byte[] bytes = File.ReadAllBytes(path);
-                return NSData.FromArray(bytes);
+                try {
+                    byte[] bytes = File.ReadAllBytes(path);
+                    return NSData.FromArray(bytes);
+                } catch (Exception ex) {
+                    Console.WriteLine(ex);
+                    // okay, let's fall back to downloading the file
+                    if (downloadCacheMisses)
+                    {
+                        return FetchUrl(path, url);
+                    }
+                }
             } 
             else if (downloadCacheMisses)
             {
-#if DEBUG
-                Console.WriteLine("FromUrl on thread {0}:{1}", 
-                              System.Threading.Thread.CurrentThread.ManagedThreadId, System.Threading.Thread.CurrentThread.Name);
-#endif
-                try {
-                    UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;
-                    var data = NSData.FromUrl (new NSUrl (url));
-                    
-                    byte[] dataBytes = new byte[data.Length];
-    
-                    System.Runtime.InteropServices.Marshal.Copy(data.Bytes, dataBytes, 0, Convert.ToInt32(data.Length));
-                    File.WriteAllBytes(path, dataBytes);
-                    return data;
-                } finally {
-                    UIApplication.SharedApplication.NetworkActivityIndicatorVisible = false;
-                }
+                return FetchUrl(path, url);
             }
             return null;
+        }
+    
+    
+        private static NSData FetchUrl(string path, string url) 
+        {
+#if DEBUG
+            Console.WriteLine("FromUrl on thread {0}:{1}", 
+                          System.Threading.Thread.CurrentThread.ManagedThreadId, System.Threading.Thread.CurrentThread.Name);
+#endif
+            try {
+                UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;
+                var data = NSData.FromUrl (new NSUrl (url));
+                
+                byte[] dataBytes = new byte[data.Length];
+    
+                System.Runtime.InteropServices.Marshal.Copy(data.Bytes, dataBytes, 0, Convert.ToInt32(data.Length));
+                File.WriteAllBytes(path, dataBytes);
+                return data;
+            } finally {
+                UIApplication.SharedApplication.NetworkActivityIndicatorVisible = false;
+            }
         }
     }
 }
