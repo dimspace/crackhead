@@ -86,7 +86,7 @@ namespace Funny
                     // this is a bit of a hack.  if the title changes (maybe correcting a typo)
                     // we want to be able to invalid client caches.  this change won't
                     // necessarily have an immediate effect though
-                    if (!info.Url.Equals(p.Title)) {
+                    if (!info.Caption.Equals(p.Title)) {
                         changed = true;
                         info = new PhotoInfo(p.PhotoId, p.MediumUrl, p.Title);
                         this.photos[p.PhotoId] = info;

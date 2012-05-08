@@ -37,8 +37,8 @@ namespace Funny
             }
         }
         
-        private static float GetViewY(UIDeviceOrientation orientation, SizeF bounds) {
-            bool portrait = UIDeviceOrientation.Portrait == orientation || UIDeviceOrientation.PortraitUpsideDown == orientation;
+        private float GetViewY(SizeF bounds) {
+            bool portrait = Frame.Width < Frame.Height;
             if (portrait) {
                 return (UIScreen.MainScreen.Bounds.Height - bounds.Height) / 2;
             } else {
@@ -47,15 +47,13 @@ namespace Funny
         }
         
         public void RenderViews(int start, int end) {
-            UIDeviceOrientation orientation = UIDevice.CurrentDevice.Orientation;
-            
             for (int i = start; i < end; i++) {
                 if (null == views[i]) {
                     UIView view = dataSource.GetView(i);
                     views[i] = view;
                     
                     SizeF size = view.SizeThatFits(Frame.Size);
-                    float y = GetViewY(orientation, size);
+                    float y = GetViewY(size);
                     view.Frame = new RectangleF(i * Frame.Width, y, size.Width, size.Height);
                     scrollView.AddSubview(view);
                 }
@@ -113,10 +111,11 @@ namespace Funny
             
             UIView currentImage = views[currentViewIndex];
             
+            float currentY = currentImage.Frame.Y;
             currentImage.RemoveFromSuperview();
             AddSubview(currentImage);
             BringSubviewToFront(currentImage);
-            currentImage.Frame = new RectangleF(0, 0, currentImage.Frame.Width, currentImage.Frame.Height);
+            currentImage.Frame = new RectangleF(0, currentY, currentImage.Frame.Width, currentImage.Frame.Height);
             
 #if DEBUG
             Console.WriteLine("Current index = {0}", currentViewIndex);
@@ -127,10 +126,11 @@ namespace Funny
             scrollView.RemoveFromSuperview();
             
             SetNeedsDisplay();
+            SizeF newSize = currentImage.SizeThatFits(size);
             
             Animate(duration, 0, UIViewAnimationOptions.TransitionNone,
                 delegate() {
-                    currentImage.Frame = new RectangleF(0, 0, size.Width, size.Height);
+                    currentImage.Frame = new RectangleF(0, currentY, newSize.Width, newSize.Height);
                 }, 
                 delegate() {
 #if DEBUG
@@ -142,7 +142,8 @@ namespace Funny
                     
                     for (int i = 0; i < dataSource.Count; i++) {
                         if (null != views[i] && currentViewIndex != i) {
-                            views[i].Frame = new RectangleF(i * size.Width, 0, size.Width, size.Height);
+                            newSize = views[i].SizeThatFits(size);
+                            views[i].Frame = new RectangleF(i * size.Width, 0, newSize.Width, newSize.Height);
                         }
                     }
             
@@ -165,7 +166,6 @@ namespace Funny
             
             public override void Scrolled (UIScrollView scrollView)
             {
-                UIDeviceOrientation orientation = UIDevice.CurrentDevice.Orientation;
                 SizeF bounds =  view.Frame.Size;
                 int index = view.GetImageIndex();
                 for (int i = Math.Max(0, index - 1); i < Math.Min(view.dataSource.Count, index + 2); i++) {
@@ -176,7 +176,7 @@ namespace Funny
                         
                         SizeF size = view.views[i].SizeThatFits(view.Frame.Size);
                         view.views[i].Frame = new RectangleF(x, 
-                                GetViewY(orientation, size), size.Width, size.Height);
+                                view.GetViewY(size), size.Width, size.Height);
                     }
                 }
             }

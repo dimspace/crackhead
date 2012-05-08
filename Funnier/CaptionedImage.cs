@@ -66,8 +66,16 @@ namespace Funny
         
         public override SizeF SizeThatFits(SizeF size)
         {
-            Console.WriteLine("SizeThatFits");
+            if (size.Width > size.Height) {
+                return size;
+            }
+            if (null == image) {
+                return size;
+            }
             size = GetImageFrame(size).Size;
+#if DEBUG
+            Console.WriteLine("SizeThatFits " + size);
+#endif
             return new SizeF(size.Width, size.Height + 25);
         }
         
@@ -112,7 +120,7 @@ namespace Funny
         {
             base.LayoutSubviews ();
 #if DEBUG
-            Console.WriteLine("CaptionedImage.LayoutSubviews");
+//            Console.WriteLine("CaptionedImage.LayoutSubviews");
 #endif
             if (null != image) {
                 imageView.Frame = GetImageFrame(Frame.Size);
