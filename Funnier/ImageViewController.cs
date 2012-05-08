@@ -55,26 +55,75 @@ namespace Funny
             
             scrollView.Frame = UIScreen.MainScreen.Bounds; //new RectangleF(0, 0, View.Frame.Width, View.Frame.Height);
             
-            View.BackgroundColor = UIColor.Black;
+            View.BackgroundColor = UIColor.White;
             scrollView.BackgroundColor = UIColor.Clear;
             View.AddSubview(scrollView);
             
-            scrollView.AddGestureRecognizer(new UITapGestureRecognizer(this, new MonoTouch.ObjCRuntime.Selector("tap")));
+            scrollView.AddGestureRecognizer(new UITapGestureRecognizer(this, new MonoTouch.ObjCRuntime.Selector("tapToggleToolbar")));
+            scrollView.OnScroll += delegate() {
+                SetToolbarHidden(true);
+            };
             
             dataSource.Added += PhotosAdded;
             if (dataSource.Photos.Count > 0) {
                 scrollView.DataSource = new DataSource(dataSource.Photos);
             }
+            toolbar.SetItems(new UIBarButtonItem[] { 
+                GetFirstImageButton(), 
+                new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
+                GetLastImageButton() }, false);
+            View.BringSubviewToFront(toolbar);
         }
         
-        [Export("tap")]
-         public void Pinch(UIPinchGestureRecognizer sender)
-         {
-             if (sender.State == UIGestureRecognizerState.Ended)
-             {
-                 Debug.WriteLine("TAP");
-             }
-         }
+        private UIBarButtonItem GetFirstImageButton() {
+            return new UIBarButtonItem(UIBarButtonSystemItem.Rewind, 
+                delegate {
+                    scrollView.ScrollView.ContentOffset = new PointF(0f, 0f);
+                });
+        }
+        
+        private UIBarButtonItem GetLastImageButton() {
+            return new UIBarButtonItem(UIBarButtonSystemItem.FastForward, 
+                delegate {
+                    scrollView.ScrollView.ContentOffset = new PointF((dataSource.Photos.Count - 1) * View.Frame.Width, 0f);
+                });
+        }
+        
+        [Export("tapToggleToolbar")]
+        private void Pinch(UIPinchGestureRecognizer sender)
+        {
+            // animate showing and hiding the toolbar
+            if (sender.State == UIGestureRecognizerState.Ended)
+            {
+                SetToolbarHidden(!toolbar.Hidden);
+            }
+        }
+        
+        private void SetToolbarHidden(bool hide) {
+            if (hide == toolbar.Hidden) {
+                return;
+            }
+            float height =  (UIDevice.CurrentDevice.Orientation == UIDeviceOrientation.LandscapeLeft 
+                             || UIDevice.CurrentDevice.Orientation == UIDeviceOrientation.LandscapeRight) ?
+                            UIScreen.MainScreen.ApplicationFrame.Width : UIScreen.MainScreen.ApplicationFrame.Height;
+            
+            bool hidden = toolbar.Hidden;
+            if (hidden) {
+                toolbar.Frame = new RectangleF(toolbar.Frame.X, height, toolbar.Frame.Width, 
+                                        toolbar.Frame.Height);
+                toolbar.Hidden = false;
+            }
+            Debug.WriteLine("{0} toolbar, y = {1}", hidden ? "show" : "hide", height);
+            
+            UIView.Animate(0.2, 0, UIViewAnimationOptions.TransitionFlipFromBottom,
+                delegate() {
+                    float newY = height - (hidden ? toolbar.Frame.Height : 0);
+                    toolbar.Frame = new RectangleF(toolbar.Frame.X, newY, 
+                                        toolbar.Frame.Width, toolbar.Frame.Height);
+                }, delegate() {
+                    toolbar.Hidden = !hidden;
+                }); 
+        }
         
         public override void ViewDidUnload ()
         {

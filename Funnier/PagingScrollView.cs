@@ -7,11 +7,20 @@ using MonoTouch.CoreGraphics;
 
 namespace Funny
 {
+    public delegate void Scrolled();
+    
     public class PagingScrollView : UIView, IResizable
     {
         private PagingViewDataSource dataSource;
         private UIView[] views;
         private readonly UIScrollView scrollView;
+        public event Scrolled OnScroll;
+        
+        public UIScrollView ScrollView {
+            get {
+                return scrollView;
+            }
+        }
         
         public PagingViewDataSource DataSource {
             get {
@@ -126,7 +135,7 @@ namespace Funny
             SizeF newSize = currentImage.SizeThatFits(size);
             float newY = GetViewY(newSize, size);
             
-            Animate(duration, 0, UIViewAnimationOptions.TransitionNone,
+            UIView.Animate(duration, 0, UIViewAnimationOptions.TransitionNone,
                 delegate() {
                     currentImage.Frame = new RectangleF(0, newY, newSize.Width, newSize.Height);
                 }, 
@@ -155,6 +164,25 @@ namespace Funny
             this.Frame = new RectangleF(Frame.X, Frame.Y, size.Width, size.Height);            
         }
         
+        private void FireOnScroll() {
+            SizeF bounds =  Frame.Size;
+            int index = GetImageIndex();
+            for (int i = Math.Max(0, index - 1); i < Math.Min(dataSource.Count, index + 2); i++) {
+                float x = i * bounds.Width;
+                if (null == views[i]) {
+                    views[i] = dataSource.GetView(i);
+                    scrollView.AddSubview(views[i]);
+                    
+                    SizeF size = views[i].SizeThatFits(Frame.Size);
+                    views[i].Frame = new RectangleF(x, 
+                            GetViewY(size), size.Width, size.Height);
+                }
+            }
+            
+            if (null != OnScroll) {
+                OnScroll();
+            }
+        }
         
         private class ScrollViewDelegate : UIScrollViewDelegate {
             private readonly PagingScrollView view;
@@ -164,19 +192,7 @@ namespace Funny
             
             public override void Scrolled (UIScrollView scrollView)
             {
-                SizeF bounds =  view.Frame.Size;
-                int index = view.GetImageIndex();
-                for (int i = Math.Max(0, index - 1); i < Math.Min(view.dataSource.Count, index + 2); i++) {
-                    float x = i * bounds.Width;
-                    if (null == view.views[i]) {
-                        view.views[i] = view.dataSource.GetView(i);
-                        view.scrollView.AddSubview(view.views[i]);
-                        
-                        SizeF size = view.views[i].SizeThatFits(view.Frame.Size);
-                        view.views[i].Frame = new RectangleF(x, 
-                                view.GetViewY(size), size.Width, size.Height);
-                    }
-                }
+                view.FireOnScroll();
             }
             
         }
