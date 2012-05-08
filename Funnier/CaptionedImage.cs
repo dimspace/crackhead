@@ -59,12 +59,14 @@ namespace Funny
                 PositionCaption(imageView.Frame);
             }
             AddSubview(captionLabel);
-            
-#if DEBUG
-            // FIXME debugging
-//            this.BackgroundColor = UIColor.Green;
-#endif
-
+            this.BackgroundColor = UIColor.White;
+        }
+        
+        public override SizeF SizeThatFits(SizeF size)
+        {
+            Console.WriteLine("SizeThatFits");
+            size = GetImageFrame(size).Size;
+            return new SizeF(size.Width, size.Height + 25);
         }
         
         private void SetImage(NSData data) {
@@ -94,6 +96,9 @@ namespace Funny
         public override void LayoutSubviews ()
         {
             base.LayoutSubviews ();
+#if DEBUG
+            Console.WriteLine("CaptionedImage.LayoutSubviews");
+#endif
             if (null != image) {
                 imageView.Frame = GetImageFrame(Frame.Size);
                 PositionCaption(imageView.Frame);

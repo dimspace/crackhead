@@ -56,13 +56,26 @@ namespace Funny
             
             scrollView.Frame = UIScreen.MainScreen.Bounds; //new RectangleF(0, 0, View.Frame.Width, View.Frame.Height);
             
+            View.BackgroundColor = UIColor.Black;
+            scrollView.BackgroundColor = UIColor.Clear;
             View.AddSubview(scrollView);
+            
+            scrollView.AddGestureRecognizer(new UITapGestureRecognizer(this, new MonoTouch.ObjCRuntime.Selector("tap")));
             
             dataSource.Added += PhotosAdded;
             if (dataSource.Photos.Count > 0) {
                 scrollView.DataSource = new DataSource(dataSource.Photos);
             }
         }
+        
+        [Export("tap")]
+         public void Pinch(UIPinchGestureRecognizer sender)
+         {
+             if (sender.State == UIGestureRecognizerState.Ended)
+             {
+                 Console.WriteLine("TAP");
+             }
+         }
         
         public override void ViewDidUnload ()
         {
