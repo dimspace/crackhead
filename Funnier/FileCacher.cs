@@ -59,7 +59,8 @@ namespace Funny
         private static NSData FetchUrl(string path, string url) 
         {
 
-            Debug.WriteLine("FromUrl on thread {0}:{1}", 
+            Debug.WriteLine("FromUrl: {0} on thread {1}:{2}", 
+                          url,
                           System.Threading.Thread.CurrentThread.ManagedThreadId, System.Threading.Thread.CurrentThread.Name);
             try {
                 UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;
