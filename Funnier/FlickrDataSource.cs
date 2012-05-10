@@ -78,7 +78,7 @@ namespace Funny
             List<PhotoInfo> newPhotos = new List<PhotoInfo>();
             foreach (Photo p in photos) {
                 if (!this.photos.ContainsKey(p.PhotoId)) {
-                    PhotoInfo info = new PhotoInfo(p.PhotoId, p.MediumUrl, p.Title);
+                    PhotoInfo info = new PhotoInfo(p.PhotoId, GetUrl(p), p.Title);
                     this.photos[p.PhotoId] = info;
                     newPhotos.Add(info);
                 } else {
@@ -88,7 +88,7 @@ namespace Funny
                     // necessarily have an immediate effect though
                     if (!info.Caption.Equals(p.Title)) {
                         changed = true;
-                        info = new PhotoInfo(p.PhotoId, p.MediumUrl, p.Title);
+                        info = new PhotoInfo(p.PhotoId, GetUrl(p), p.Title);
                         this.photos[p.PhotoId] = info;
                     }
                 }
@@ -103,6 +103,10 @@ namespace Funny
             if (newPhotos.Count > 0 && null != Added) {
                 Added(newPhotos);
             }
+        }
+        
+        private string GetUrl(Photo photo) {
+            return UIScreen.MainScreen.ApplicationFrame.Width > 700 ? photo.LargeUrl : photo.MediumUrl;
         }
         
         /// <summary>
