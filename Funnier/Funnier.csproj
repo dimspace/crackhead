@@ -105,5 +105,8 @@
     <Content Include="icons\icon.png" />
     <Content Include="icons\icon%402x.png" />
     <Content Include="images\funnier.png" />
+    <Content Include="icons\icon-144.png" />
+    <Content Include="icons\icon-512.png" />
+    <Content Include="icons\icon-1024.png" />
   </ItemGroup>
 </Project>

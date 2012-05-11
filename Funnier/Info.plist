@@ -6,20 +6,21 @@
 	<string>Funnier</string>
 	<key>CFBundleIconFiles</key>
 	<array>
-		<string>../../../Desktop/To Post/icon.png</string>
-		<string>../../../Desktop/To Post/icon@2x.png</string>
-		<string>../../../Desktop/To Post/icon-72.png</string>
-		<string>../../../Desktop/To Post/icon-144.png</string>
-		<string>../../../Desktop/To Post/icon-512.png</string>
+		<string>icons/icon.png</string>
+		<string>icons/icon@2x.png</string>
+		<string>icons/icon-72.png</string>
+		<string>icons/icon-144.png</string>
+		<string>icons/icon-512.png</string>
 	</array>
 	<key>CFBundleIdentifier</key>
 	<string>Funnier</string>
 	<key>CFBundleVersion</key>
 	<string>0.1</string>
+	<key>MinimumOSVersion</key>
+	<string>5.0</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
-		<integer>2</integer>
 	</array>
 	<key>UIMainStoryboardFile</key>
 	<string>MainStoryboard_iPhone</string>
@@ -28,6 +29,7 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
