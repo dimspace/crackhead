@@ -49,11 +49,14 @@ namespace Funny
             Debug.WriteLine("Image controller view did load");
             
             scrollView = new PagingScrollView();
-            
-            
-//            UIScreen.MainScreen.Bounds
-            
-            scrollView.Frame = UIScreen.MainScreen.Bounds; //new RectangleF(0, 0, View.Frame.Width, View.Frame.Height);
+                        
+            UIDeviceOrientation orientation = UIDevice.CurrentDevice.Orientation;
+            if (orientation == UIDeviceOrientation.LandscapeLeft ||
+                orientation == UIDeviceOrientation.LandscapeRight) {
+                scrollView.Frame = new RectangleF(0, 0, UIScreen.MainScreen.Bounds.Height, UIScreen.MainScreen.Bounds.Width);
+            } else {
+                scrollView.Frame = UIScreen.MainScreen.Bounds;
+            }
             
             View.BackgroundColor = UIColor.White;
             scrollView.BackgroundColor = UIColor.Clear;
