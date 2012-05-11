@@ -59,7 +59,6 @@ namespace Funny
             scrollView.BackgroundColor = UIColor.Clear;
             View.AddSubview(scrollView);
             
-            scrollView.AddGestureRecognizer(new UITapGestureRecognizer(this, new MonoTouch.ObjCRuntime.Selector("tapToggleToolbar")));
             scrollView.OnScroll += delegate() {
                 SetToolbarHidden(true);
             };
@@ -68,6 +67,8 @@ namespace Funny
             if (dataSource.Photos.Count > 0) {
                 scrollView.DataSource = new DataSource(dataSource.Photos);
             }
+            
+            scrollView.AddGestureRecognizer(new UITapGestureRecognizer(this, new MonoTouch.ObjCRuntime.Selector("tapToggleToolbar")));
             toolbar.SetItems(new UIBarButtonItem[] { 
                 GetFirstImageButton(), 
                 new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
@@ -90,7 +91,7 @@ namespace Funny
         }
         
         [Export("tapToggleToolbar")]
-        private void Pinch(UIPinchGestureRecognizer sender)
+        private void Tap(UITapGestureRecognizer sender)
         {
             // animate showing and hiding the toolbar
             if (sender.State == UIGestureRecognizerState.Ended)

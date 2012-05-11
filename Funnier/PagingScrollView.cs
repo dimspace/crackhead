@@ -62,9 +62,12 @@ namespace Funny
                     UIView view = dataSource.GetView(i);
                     views[i] = view;
                     
-                    SizeF size = view.SizeThatFits(Frame.Size);
-                    float y = GetViewY(size);
-                    view.Frame = new RectangleF(i * Frame.Width, y, size.Width, size.Height);
+                    view.Frame = new RectangleF(i * Frame.Width, 0, Frame.Size.Width, Frame.Size.Height);
+//                    SizeF size = view.SizeThatFits(Frame.Size);
+//                    float y = GetViewY(size);
+                    
+//                    view.Frame = new RectangleF(i * Frame.Width, y, size.Width, size.Height);
+                    view.SizeToFit();
                     scrollView.AddSubview(view);
                 }
             }
@@ -146,7 +149,16 @@ namespace Funny
                     scrollView.AddSubview(currentImage);
                     currentImage.Frame = new RectangleF(currentViewIndex * Frame.Width, newY, currentImage.Frame.Width, currentImage.Frame.Height);
                     
+                    // we have to adjust all the photo x origins, otherwise they'll overlap other images
                     for (int i = 0; i < dataSource.Count; i++) {
+                        if (null != views[i] && currentViewIndex != i) {
+                            var currentFrame = views[i].Frame;
+                            views[i].Frame = new RectangleF(i * size.Width, currentFrame.Y, currentFrame.Size.Width, currentFrame.Size.Height);
+                        }
+                    }
+                    // but I don't want to incur the cost of trying to exactly resize and reposition every image - we 
+                    // already do that lazily on scroll.  For now, just position the images around the currently selected one.
+                    for (int i = Math.Max(0, currentViewIndex - 1); i < Math.Min(dataSource.Count, currentViewIndex + 2); i++) {
                         if (null != views[i] && currentViewIndex != i) {
                             newSize = views[i].SizeThatFits(size);
                             newY = GetViewY(newSize, size);
@@ -172,11 +184,11 @@ namespace Funny
                 if (null == views[i]) {
                     views[i] = dataSource.GetView(i);
                     scrollView.AddSubview(views[i]);
-                    
-                    SizeF size = views[i].SizeThatFits(Frame.Size);
-                    views[i].Frame = new RectangleF(x, 
-                            GetViewY(size), size.Width, size.Height);
                 }
+                SizeF size = views[i].SizeThatFits(Frame.Size);
+                views[i].Frame = new RectangleF(x, 
+                        0, size.Width, size.Height);
+                views[i].SizeToFit();
             }
             
             if (null != OnScroll) {

@@ -12,12 +12,30 @@ namespace Funny
     public class CaptionedImage : UIView
     {
         private const int CaptionHeight = 70;
-        private UIImage image;
-        private UIImageView imageView;
+        private volatile UIImage image;
+        private volatile UIImageView imageView;
         private readonly UILabel captionLabel;
         
         public CaptionedImage (PhotoInfo photoInfo)
         {
+                        
+            captionLabel = new UILabel();
+            captionLabel.Text = photoInfo.Caption;
+            //Times New Roman  TimesNewRomanPS-ItalicMT
+//Times New Roman  TimesNewRomanPS-BoldMT
+//Times New Roman  TimesNewRomanPSMT
+//Times New Roman  TimesNewRomanPS-BoldItalicMT
+            captionLabel.Font = UIFont.FromName("TimesNewRomanPS-ItalicMT", 14);
+            
+            captionLabel.LineBreakMode = UILineBreakMode.WordWrap;
+            captionLabel.Lines = (int) captionLabel.Text.Length / 55 + 1; // formerly: 2;
+            captionLabel.ContentMode = UIViewContentMode.Bottom;
+            captionLabel.TextAlignment = UITextAlignment.Center;
+
+            captionLabel.BackgroundColor = UIColor.Clear;
+            //captionLabel.Layer.BorderColor = new CGColor (1f, 1f, 1f);
+            //captionLabel.Layer.BorderWidth = 2;   
+            
             NSData data = FileCacher.LoadUrl(photoInfo.Url, false);
             
             if (null == data) {
@@ -40,24 +58,7 @@ namespace Funny
             } else {
                 SetImage(data);
             }
-            
-            captionLabel = new UILabel();
-            captionLabel.Text = photoInfo.Caption;
-            //Times New Roman  TimesNewRomanPS-ItalicMT
-//Times New Roman  TimesNewRomanPS-BoldMT
-//Times New Roman  TimesNewRomanPSMT
-//Times New Roman  TimesNewRomanPS-BoldItalicMT
-            captionLabel.Font = UIFont.FromName("TimesNewRomanPS-ItalicMT", 14);
-            
-            captionLabel.LineBreakMode = UILineBreakMode.WordWrap;
-            captionLabel.Lines = (int) captionLabel.Text.Length / 55 + 1; // formerly: 2;
-            captionLabel.ContentMode = UIViewContentMode.Bottom;
-            captionLabel.TextAlignment = UITextAlignment.Center;
 
-            captionLabel.BackgroundColor = UIColor.Clear;
-            //captionLabel.Layer.BorderColor = new CGColor (1f, 1f, 1f);
-            //captionLabel.Layer.BorderWidth = 2;
-   
             if (null != imageView) {
                 PositionCaption(imageView.Frame);
             }
@@ -78,13 +79,44 @@ namespace Funny
             return new SizeF(size.Width, size.Height + 25);
         }
         
+        private bool isPortrait() {
+            UIDeviceOrientation orientation = UIDevice.CurrentDevice.Orientation;
+            Debug.WriteLine("Orientation: {0}", orientation);
+            return orientation == UIDeviceOrientation.Portrait || orientation == UIDeviceOrientation.PortraitUpsideDown;
+        }
+        
+        private float GetViewY(SizeF bounds) {
+            bool portrait = isPortrait();
+            if (portrait) {
+                return (UIScreen.MainScreen.Bounds.Height - bounds.Height) / 2;
+            } else {
+                return 0;
+            }
+        }
+        
+        public override void SizeToFit ()
+        {            
+            SizeF newSize = SizeThatFits(Frame.Size);
+            RectangleF newFrame = new RectangleF(Frame.X, 
+                            GetViewY(newSize), newSize.Width, newSize.Height);
+            Debug.WriteLine("New frame: {0}", newFrame);
+            Frame = newFrame;
+            
+//            LayoutSubviews();
+        }
+        
         private void SetImage(NSData data) {
-            this.image = UIImage.LoadFromData(data);
+            image = UIImage.LoadFromData(data);
             imageView = new UIImageView(image);
             imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
         
             imageView.Frame = GetImageFrame(Frame.Size);
+            
+            SizeToFit();
+            PositionCaption(GetImageFrame(Frame.Size));
+
             AddSubview(imageView);
+            BringSubviewToFront(captionLabel);
         }
         
         private void PositionCaption(RectangleF bounds) {
@@ -96,6 +128,8 @@ namespace Funny
             //                                      bounds.Width - 30, CaptionHeight);
             var frame = new RectangleF(15, y, Frame.Width - 30, CaptionHeight);
             captionLabel.Frame = frame;
+            Debug.WriteLine("Caption frame: {0}, bounds: {1}, caption: {2}", frame, bounds, captionLabel.Text);
+            
         }
         
         private RectangleF GetImageFrame(SizeF size) {
@@ -113,12 +147,13 @@ namespace Funny
                 newXOrigin = (size.Width - newWidth) / 2; //
             }
             
-            return new RectangleF(newXOrigin,0, newWidth, newHeight);
-        } //
+            return new RectangleF(Math.Max(0, newXOrigin),0, 
+                                  Math.Min(newWidth, size.Width), newHeight);
+        }
         
-        public override void LayoutSubviews ()
+        public override void LayoutSubviews()
         {
-            base.LayoutSubviews ();
+//            base.LayoutSubviews ();
 
 //            Debug.WriteLine("CaptionedImage.LayoutSubviews");
             if (null != image) {

@@ -20,7 +20,7 @@ namespace Funny
         /// 
         private readonly Dictionary<string, PhotoInfo> photos = new Dictionary<string, PhotoInfo>();
         private readonly Flickr flickr;
-        private DateTime lastPhotoFetchTimestamp;
+        private DateTime? lastPhotoFetchTimestamp;
         
         public event PhotosAdded Added;
         
