@@ -92,8 +92,8 @@ namespace Funny
             // prevent the text from running off the bottom of the screen in landscape mode
             float y = Math.Min (bounds.Height-40, Frame.Height - CaptionHeight - 10);
             
-            var frame = new RectangleF(bounds.X + 5, y,
-                                                  bounds.Width - 10, CaptionHeight);
+            var frame = new RectangleF(bounds.X + 15, y,
+                                                  bounds.Width - 30, CaptionHeight);
             captionLabel.Frame = frame;
         }
         
