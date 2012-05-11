@@ -57,6 +57,7 @@ namespace Funny
             } else {
                 scrollView.Frame = UIScreen.MainScreen.Bounds;
             }
+            View.Frame = scrollView.Frame;
             
             View.BackgroundColor = UIColor.White;
             scrollView.BackgroundColor = UIColor.Clear;
@@ -89,7 +90,8 @@ namespace Funny
         private UIBarButtonItem GetLastImageButton() {
             return new UIBarButtonItem(UIBarButtonSystemItem.FastForward, 
                 delegate {
-                    scrollView.ScrollView.ContentOffset = new PointF((dataSource.Photos.Count - 1) * View.Frame.Width, 0f);
+                    Debug.WriteLine("Width {0}", View.Frame.Width);
+                    scrollView.ScrollView.ContentOffset = new PointF((dataSource.Photos.Count - 1) * scrollView.Frame.Width, 0f);
                 });
         }
         
