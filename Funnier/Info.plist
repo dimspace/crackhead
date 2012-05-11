@@ -6,9 +6,11 @@
 	<string>Funnier</string>
 	<key>CFBundleIconFiles</key>
 	<array>
-		<string>icons/icon.png</string>
-		<string>icons/icon@2x.png</string>
-		<string>icons/icon-72.png</string>
+		<string>../../../Desktop/To Post/icon.png</string>
+		<string>../../../Desktop/To Post/icon@2x.png</string>
+		<string>../../../Desktop/To Post/icon-72.png</string>
+		<string>../../../Desktop/To Post/icon-144.png</string>
+		<string>../../../Desktop/To Post/icon-512.png</string>
 	</array>
 	<key>CFBundleIdentifier</key>
 	<string>Funnier</string>
