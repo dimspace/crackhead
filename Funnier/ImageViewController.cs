@@ -135,19 +135,7 @@ namespace Funny
                     toolbar.Hidden = !hidden;
                 }); 
         }
-        
-        public override void ViewWillUnload ()
-        {
-            base.ViewWillUnload ();
-            Debug.WriteLine("ViewWillUnload");
-        }
-        
-        public override void ViewWillDisappear (bool animated)
-        {
-            base.ViewWillDisappear (animated);
-            Debug.WriteLine("ViewWillDisappear");
-        }
-        
+
         public override void ViewDidUnload ()
         {
             base.ViewDidUnload ();
@@ -170,6 +158,10 @@ namespace Funny
         
         public override void WillRotate (UIInterfaceOrientation toInterfaceOrientation, double duration)
         {
+            // We want to tell the scrollView what its new size will be after rotating and
+            // we have to take the toolbar size into account.  Right now our height is smaller because it is reduced by the 
+            // size of the toolbar, so add the toolbar height to the current height.  The current width will need to shrink
+            // by the size of the toolbar.  Since this is a rotation, we're swapping width and height.
             var newSize = new SizeF(View.Bounds.Height + toolbarHeight, View.Bounds.Width - toolbarHeight);
             
             Debug.WriteLine("Before rotate {0}", scrollView.Frame);
