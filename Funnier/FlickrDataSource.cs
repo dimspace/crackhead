@@ -99,9 +99,21 @@ namespace Funny
             if (changed) {
                 Save();
             }
-            // Fire the Added event
-            if (newPhotos.Count > 0 && null != Added) {
-                Added(newPhotos);
+            
+            if (newPhotos.Count > 0) {
+                // Fire the Added event
+                if (null != Added) {
+                    Added(newPhotos);
+                }
+                var message = String.Format("{0} new cartoon{1} arrived", newPhotos.Count, newPhotos.Count > 1 ? "s" : "");
+                UILocalNotification notification = new UILocalNotification{
+                    FireDate = DateTime.Now,
+                    TimeZone = NSTimeZone.LocalTimeZone,
+                    AlertBody = message,
+                    RepeatInterval = 0,
+                    ApplicationIconBadgeNumber = newPhotos.Count
+                };
+                UIApplication.SharedApplication.ScheduleLocalNotification(notification);
             }
 
             // warm the image file cache

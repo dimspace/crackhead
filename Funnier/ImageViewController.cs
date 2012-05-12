@@ -66,6 +66,9 @@ namespace Funny
             View.AddSubview(scrollView);
             
             scrollView.OnScroll += delegate {
+                // clear the icon badge number.  In the future we might want to update it as cartoons are viewed
+                UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
+                
                 SetToolbarHidden(true);
                 // we have to do this on another thread because the scroll hasn't finished yet
                 ThreadPool.QueueUserWorkItem(delegate {

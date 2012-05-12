@@ -41,6 +41,7 @@
                                 <items>
                                     <barButtonItem title="Item" id="Eg1-6C-kyL"/>
                                 </items>
+                                <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                             </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
