@@ -41,6 +41,12 @@ namespace Funny
             // Release any cached data, images, etc that aren't in use.
             scrollView.FreeUnusedViews();
         }
+
+        float ComputeToolbarHeight ()
+        {            
+            return Math.Max(UIScreen.MainScreen.Bounds.Height - View.Bounds.Height,
+                    UIScreen.MainScreen.Bounds.Width - View.Bounds.Width);
+        }
         
         
         public override void ViewDidLoad ()
@@ -52,11 +58,8 @@ namespace Funny
             scrollView = new PagingScrollView(View.Bounds);
             // set our scroll view to automatically resize on rotation
             scrollView.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
-   
-            // figure out the height of the toolbar
-            toolbarHeight = UIScreen.MainScreen.Bounds.Width == View.Bounds.Width ?
-                UIScreen.MainScreen.Bounds.Height - View.Bounds.Height :
-                UIScreen.MainScreen.Bounds.Width - View.Bounds.Height;
+
+            toolbarHeight = ComputeToolbarHeight();
 
             View.BackgroundColor = UIColor.White;
             scrollView.BackgroundColor = UIColor.Clear;
@@ -89,7 +92,6 @@ namespace Funny
             }
         }
         
-        /*
         public override void ViewWillAppear (bool animated)
         {
             base.ViewDidAppear (animated);
@@ -99,7 +101,7 @@ namespace Funny
             if (View.Bounds.Width > View.Bounds.Height) {
                 scrollView.Resize(View.Bounds.Size, 0);
             }
-        }*/
+        }
         
         private UIBarButtonItem GetFirstImageButton() {
             return new UIBarButtonItem(UIBarButtonSystemItem.Rewind, 
