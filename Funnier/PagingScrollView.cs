@@ -7,7 +7,7 @@ using MonoTouch.CoreGraphics;
 
 namespace Funny
 {
-    public delegate void Scrolled(int index);
+    public delegate void Scrolled();
     
     public class PagingScrollView : UIView, IResizable
     {
@@ -71,9 +71,7 @@ namespace Funny
         }
         
         public int GetCurrentViewIndex() {
-            if (dataSource == null) return 0;            
-            float index = scrollView.ContentOffset.X / (scrollView.ContentSize.Width / dataSource.Count);
-            return (int)index;
+            return (int) (scrollView.ContentOffset.X / scrollView.Frame.Size.Width);
         }
         
         public void ScrollToView(int index) 
@@ -158,7 +156,7 @@ namespace Funny
             }
             
             if (null != OnScroll) {
-                OnScroll(index);
+                OnScroll();
             }
         }
         
@@ -172,7 +170,6 @@ namespace Funny
             {
                 view.FireOnScroll();
             }
-            
         }
         
     }

@@ -62,9 +62,13 @@ namespace Funny
             scrollView.BackgroundColor = UIColor.Clear;
             View.AddSubview(scrollView);
             
-            scrollView.OnScroll += delegate(int index) {
+            scrollView.OnScroll += delegate {
                 SetToolbarHidden(true);
-                FlickrDataSource.Get().LastViewedImageIndex = index;
+                // we have to do this on another thread because the scroll hasn't finished yet
+                ThreadPool.QueueUserWorkItem(delegate {
+                    FlickrDataSource.Get().LastViewedImageIndex = scrollView.GetCurrentViewIndex();
+                });
+                
             };
             
             dataSource.Added += PhotosAdded;
