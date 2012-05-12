@@ -89,6 +89,7 @@ namespace Funny
             }
         }
         
+        /*
         public override void ViewWillAppear (bool animated)
         {
             base.ViewDidAppear (animated);
@@ -98,7 +99,7 @@ namespace Funny
             if (View.Bounds.Width > View.Bounds.Height) {
                 scrollView.Resize(View.Bounds.Size, 0);
             }
-        }
+        }*/
         
         private UIBarButtonItem GetFirstImageButton() {
             return new UIBarButtonItem(UIBarButtonSystemItem.Rewind, 
