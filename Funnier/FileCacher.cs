@@ -55,7 +55,18 @@ namespace Funny
             return null;
         }
     
-    
+        /// <summary>
+        /// Fetchs the URL data, stores it in a file, and returns the data.
+        /// </summary>
+        /// <returns>
+        /// The URL.
+        /// </returns>
+        /// <param name='path'>
+        /// Path.
+        /// </param>
+        /// <param name='url'>
+        /// URL.
+        /// </param>
         private static NSData FetchUrl(string path, string url) 
         {
 

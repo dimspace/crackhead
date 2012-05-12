@@ -25,7 +25,8 @@ namespace Funny
 //Times New Roman  TimesNewRomanPS-BoldMT
 //Times New Roman  TimesNewRomanPSMT
 //Times New Roman  TimesNewRomanPS-BoldItalicMT
-            captionLabel.Font = UIFont.FromName("TimesNewRomanPS-ItalicMT", 14);
+            captionLabel.Font = UIFont.FromName("TimesNewRomanPS-ItalicMT", 
+                                                (DeviceUtils.IsIPad() ? 17 : 14));
             
             captionLabel.LineBreakMode = UILineBreakMode.WordWrap;
             // set more lines than we need.  we resize to fit later
@@ -75,12 +76,18 @@ namespace Funny
         
         private void PositionCaption(RectangleF imageBounds) {
             var padding = 15;
+            // the caption width is the width of our view bounds minus padding
             var width = Frame.Width - padding*2;
-            var size = captionLabel.TextRectForBounds(imageBounds, 3);
+            
+            // if the caption had to fit in the bounds of our entire view minus the left
+            // and right padding, how large would its rect be?  We really only care about the height.
+            var size = captionLabel.TextRectForBounds(
+                new RectangleF(Frame.X + 15, Frame.Y, width, Frame.Height), 3);
             
             // prevent the text from running off the bottom of the screen in landscape mode
             float y = Math.Min(imageBounds.Y + imageBounds.Height + 40,
-                               Bounds.Height - size.Height - 5);
+                               // we should always have 5 px of padding before running off the screen
+                               Frame.Height - size.Height - 5);
             
             var frame = new RectangleF(padding, y, width, size.Height);
             captionLabel.Frame = frame;
@@ -89,7 +96,10 @@ namespace Funny
         }
         
         private RectangleF GetImageFrame(SizeF size) {
+            // FIXME: we want to move the image a little up from center to give the caption room
+            //var captionRoom = 18;
             
+            // (mostly) center the image
             var imageSize = image.Size;
             var imageScale = Math.Min(size.Width/imageSize.Width, size.Height/imageSize.Height);
             var scaledImageSize = new SizeF(imageSize.Width*imageScale, imageSize.Height*imageScale);

@@ -83,41 +83,35 @@ namespace Funny
             bool changed = false;
             List<PhotoInfo> newPhotos = new List<PhotoInfo>();
             foreach (Photo p in photos) {
+                PhotoInfo info = new PhotoInfo(p.PhotoId, GetUrl(p), p.Title, p.Tags);
                 if (!this.photos.ContainsKey(p.PhotoId)) {
-                    PhotoInfo info = new PhotoInfo(p.PhotoId, GetUrl(p), p.Title);
-                    this.photos[p.PhotoId] = info;
                     newPhotos.Add(info);
-                } else {
-                    PhotoInfo info = this.photos[p.PhotoId];
-                    // this is a bit of a hack.  if the title changes (maybe correcting a typo)
-                    // we want to be able to invalid client caches.  this change won't
-                    // necessarily have an immediate effect though
-                    if (!info.Caption.Equals(p.Title)) {
-                        changed = true;
-                        info = new PhotoInfo(p.PhotoId, GetUrl(p), p.Title);
-                        this.photos[p.PhotoId] = info;
-                    }
+                    changed = true;
                 }
+                // we always overwrite our in memory copy of the photo info, and this will be
+                // persisted on any change.
+                this.photos[p.PhotoId] = info;
             }
             
             // REVIEW - consider always overwriting the local data with the remote info,
             // that way we don't have to worry about local caches getting into a bad state
             
-            if (newPhotos.Count > 0 || changed) {
+            if (changed) {
                 Save();
             }
+            // Fire the Added event
             if (newPhotos.Count > 0 && null != Added) {
                 Added(newPhotos);
             }
 
-            // warm the image file cache with the first two images
-            foreach (PhotoInfo p in this.photos.Values) {
+            // warm the image file cache
+            foreach (PhotoInfo p in newPhotos) {
                 FileCacher.LoadUrl(p.Url, true);
             }
         }
         
         private string GetUrl(Photo photo) {
-            return UIScreen.MainScreen.ApplicationFrame.Width > 700 ? photo.LargeUrl : photo.MediumUrl;
+            return DeviceUtils.IsIPad() ? photo.LargeUrl : photo.MediumUrl;
         }
         
         /// <summary>
@@ -147,17 +141,26 @@ namespace Funny
         public string Id { get; private set;}
         public string Url { get; private set;}
         public string Caption {get; private set;}
+        public string[] Tags {get; private set;}
         
-        public PhotoInfo(string id, string url, string caption) {
+        public PhotoInfo(string id, string url, string caption, System.Collections.ObjectModel.Collection<string> tags) {
             Id = id;
             Url = url;
             Caption = caption;
+            this.Tags = new string[tags.Count];
+            tags.CopyTo(this.Tags, 0);
         }
         
         public PhotoInfo(NSDictionary dictionary) {
             Id = dictionary[new NSString("id")].ToString();
             Caption = dictionary[new NSString("caption")].ToString();
             Url = dictionary[new NSString("url")].ToString();
+            
+            NSArray tags = dictionary[new NSString("tags")] as NSArray;
+            Tags = new string[tags.Count];
+            for (uint i = 0; i < tags.Count; i++) {
+                Tags[i] = tags.ValueAt(i).ToString();
+            }
         }
         
         public NSDictionary Serialize() {
@@ -165,6 +168,12 @@ namespace Funny
             dict[new NSString("url")] = new NSString(Url);
             dict[new NSString("caption")] = new NSString(Caption);
             dict[new NSString("id")] = new NSString(Id);
+            
+            NSMutableArray tags = new NSMutableArray(Tags.Length);
+            foreach (string tag in Tags) {
+                tags.Add(new NSString(tag));
+            }
+            dict[new NSString("tags")] = tags;
             return dict;
         }
     }

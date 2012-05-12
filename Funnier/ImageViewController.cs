@@ -89,6 +89,17 @@ namespace Funny
             }
         }
         
+        public override void ViewWillAppear (bool animated)
+        {
+            base.ViewDidAppear (animated);
+            Debug.WriteLine("ViewWillAppear {0}  {1}", scrollView.Bounds, View.Bounds);
+            // hack to fix a bug in which the initial layout freaks if the device
+            // is rotated to landscape before the controller appears
+            if (View.Bounds.Width > View.Bounds.Height) {
+                scrollView.Resize(View.Bounds.Size, 0);
+            }
+        }
+        
         private UIBarButtonItem GetFirstImageButton() {
             return new UIBarButtonItem(UIBarButtonSystemItem.Rewind, 
                 delegate {

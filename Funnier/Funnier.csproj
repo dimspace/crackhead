@@ -84,6 +84,7 @@
     <Compile Include="SplashScreenController.designer.cs">
       <DependentUpon>SplashScreenController.cs</DependentUpon>
     </Compile>
+    <Compile Include="DeviceUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />
