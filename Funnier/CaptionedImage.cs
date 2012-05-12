@@ -84,8 +84,8 @@ namespace Funny
             var size = captionLabel.TextRectForBounds(imageBounds, 3);
             
             // prevent the text from running off the bottom of the screen in landscape mode
-            float y = Math.Min(imageBounds.Y + imageBounds.Height,
-                               Frame.Height - size.Height - 10);
+            float y = Math.Min(imageBounds.Y + imageBounds.Height + 40,
+                               Bounds.Height - size.Height - 5);
             
             var frame = new RectangleF(padding, y, width, size.Height);
             captionLabel.Frame = frame;

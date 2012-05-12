@@ -16,14 +16,9 @@ namespace Funny
         private readonly UIScrollView scrollView;
         public event Scrolled OnScroll;
         
-        public UIScrollView ScrollView {
-            get {
-                return scrollView;
-            }
-        }
-        
         public PagingScrollView(RectangleF frame) : base(frame) {
-            scrollView = new UIScrollView();
+            scrollView = new UIScrollView(frame);
+            scrollView.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
             scrollView.PagingEnabled = true;
             scrollView.ScrollEnabled = true;
             
@@ -66,21 +61,11 @@ namespace Funny
                     views[i] = view;
                     
                     view.Frame = new RectangleF(i * Frame.Width, 0, Frame.Size.Width, Frame.Size.Height);
-                    view.LayoutSubviews();
                     scrollView.AddSubview(view);
                 }
             }
         }
-        
-        public override void LayoutSubviews ()
-        {
-            base.LayoutSubviews ();
-            
-            scrollView.Frame = Frame;
 
-            Debug.WriteLine("layout {0}", Frame);
-        }
-        
         public void FreeUnusedViews() {
             // FIXME remove all off screen views in the scroll viewer
         }
@@ -100,6 +85,8 @@ namespace Funny
 
         /// <summary>
         /// Animate a resize (usually for a screen rotation).
+        /// Pop the current view out of the scroll view, hide the scrollview, rotate the current view,
+        /// then put it back into the scroll view and make it visible.
         /// </summary>
         /// <param name='size'>
         /// Size.
@@ -122,14 +109,11 @@ namespace Funny
             Debug.WriteLine("Current index = {0}", currentViewIndex);
             Debug.WriteLine("Current view = {0} {1}", currentImage, currentImage.Frame);
             
-            scrollView.RemoveFromSuperview();
-            
-//            SetNeedsDisplay();
+            scrollView.Hidden = true;
             
             UIView.Animate(duration, 0, UIViewAnimationOptions.TransitionNone,
                 delegate() {
                     currentImage.Frame = new RectangleF(0, 0, size.Width, size.Height);
-                    currentImage.LayoutSubviews();
                 }, 
                 delegate() {
                     Debug.WriteLine("animation done");
@@ -149,15 +133,13 @@ namespace Funny
                     for (int i = Math.Max(0, currentViewIndex - 1); i < Math.Min(dataSource.Count, currentViewIndex + 2); i++) {
                         if (null != views[i] && currentViewIndex != i) {
                             views[i].Frame = new RectangleF(i * size.Width, 0, size.Width, size.Height);
-                            views[i].LayoutSubviews();
                         }
                     }
             
                     scrollView.ContentSize = new SizeF(size.Width * dataSource.Count, size.Height);
 
                     scrollView.ContentOffset = new PointF(currentViewIndex * Frame.Width, 0);
-                    AddSubview(scrollView);
-                    //scrollView.Hidden = false;
+                    scrollView.Hidden = false;
                 });
         }
         
@@ -173,7 +155,6 @@ namespace Funny
                 SizeF size = Frame.Size;
                 views[i].Frame = new RectangleF(x, 
                         0, size.Width, size.Height);
-                views[i].LayoutSubviews();
             }
             
             if (null != OnScroll) {
