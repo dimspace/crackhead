@@ -7,7 +7,7 @@ using MonoTouch.CoreGraphics;
 
 namespace Funny
 {
-    public delegate void Scrolled();
+    public delegate void Scrolled(int index);
     
     public class PagingScrollView : UIView, IResizable
     {
@@ -20,6 +20,19 @@ namespace Funny
             get {
                 return scrollView;
             }
+        }
+        
+        public PagingScrollView(RectangleF frame) : base(frame) {
+            scrollView = new UIScrollView();
+            scrollView.PagingEnabled = true;
+            scrollView.ScrollEnabled = true;
+            
+            scrollView.DirectionalLockEnabled = true;
+            scrollView.ShowsVerticalScrollIndicator = false;
+            scrollView.ShowsHorizontalScrollIndicator = false;
+            
+            scrollView.Delegate = new ScrollViewDelegate(this);
+            AddSubview(scrollView);
         }
         
         public PagingViewDataSource DataSource {
@@ -45,17 +58,7 @@ namespace Funny
                 };
             }
         }
-        
-        private float GetViewY(SizeF bounds, SizeF? outerBounds = null) {
-            outerBounds = outerBounds ?? Frame.Size;
-            bool portrait = outerBounds.Value.Width < outerBounds.Value.Height;
-            if (portrait) {
-                return (UIScreen.MainScreen.Bounds.Height - bounds.Height) / 2;
-            } else {
-                return 0;
-            }
-        }
-        
+
         public void RenderViews(int start, int end) {
             for (int i = start; i < end; i++) {
                 if (null == views[i]) {
@@ -63,11 +66,7 @@ namespace Funny
                     views[i] = view;
                     
                     view.Frame = new RectangleF(i * Frame.Width, 0, Frame.Size.Width, Frame.Size.Height);
-//                    SizeF size = view.SizeThatFits(Frame.Size);
-//                    float y = GetViewY(size);
-                    
-//                    view.Frame = new RectangleF(i * Frame.Width, y, size.Width, size.Height);
-                    view.SizeToFit();
+                    view.LayoutSubviews();
                     scrollView.AddSubview(view);
                 }
             }
@@ -82,30 +81,22 @@ namespace Funny
             Debug.WriteLine("layout {0}", Frame);
         }
         
-        public PagingScrollView()
-        {
-            scrollView = new UIScrollView();
-            scrollView.PagingEnabled = true;
-            scrollView.ScrollEnabled = true;
-            
-            scrollView.DirectionalLockEnabled = true;
-            scrollView.ShowsVerticalScrollIndicator = false;
-            scrollView.ShowsHorizontalScrollIndicator = false;
-            
-            scrollView.Delegate = new ScrollViewDelegate(this);
-            AddSubview(scrollView);
-        }
-        
         public void FreeUnusedViews() {
             // FIXME remove all off screen views in the scroll viewer
         }
         
-        public int GetImageIndex() {
+        public int GetCurrentViewIndex() {
             if (dataSource == null) return 0;            
             float index = scrollView.ContentOffset.X / (scrollView.ContentSize.Width / dataSource.Count);
             return (int)index;
         }
         
+        public void ScrollToView(int index) 
+        {
+            Debug.WriteLine("Scroll to view index {0}", index);
+            scrollView.ContentOffset = new PointF(index * scrollView.Frame.Width, 0f);
+            FireOnScroll();
+        }
 
         /// <summary>
         /// Animate a resize (usually for a screen rotation).
@@ -119,7 +110,7 @@ namespace Funny
         public void Resize(SizeF size, double duration) {
             if (null == dataSource) return;
             
-            int currentViewIndex = GetImageIndex();
+            int currentViewIndex = GetCurrentViewIndex();
             
             UIView currentImage = views[currentViewIndex];
             float currentY = currentImage.Frame.Y;
@@ -131,27 +122,24 @@ namespace Funny
             Debug.WriteLine("Current index = {0}", currentViewIndex);
             Debug.WriteLine("Current view = {0} {1}", currentImage, currentImage.Frame);
             
-            //scrollView.Hidden = true;
             scrollView.RemoveFromSuperview();
             
-            SetNeedsDisplay();
-            SizeF newSize = currentImage.SizeThatFits(size);
-            float newY = GetViewY(newSize, size);
+//            SetNeedsDisplay();
             
             UIView.Animate(duration, 0, UIViewAnimationOptions.TransitionNone,
                 delegate() {
-                    currentImage.Frame = new RectangleF(0, newY, newSize.Width, newSize.Height);
+                    currentImage.Frame = new RectangleF(0, 0, size.Width, size.Height);
+                    currentImage.LayoutSubviews();
                 }, 
                 delegate() {
                     Debug.WriteLine("animation done");
 
                     currentImage.RemoveFromSuperview();
                     scrollView.AddSubview(currentImage);
-                    currentImage.Frame = new RectangleF(currentViewIndex * Frame.Width, newY, currentImage.Frame.Width, currentImage.Frame.Height);
                     
                     // we have to adjust all the photo x origins, otherwise they'll overlap other images
                     for (int i = 0; i < dataSource.Count; i++) {
-                        if (null != views[i] && currentViewIndex != i) {
+                        if (null != views[i]) { // && currentViewIndex != i) {
                             var currentFrame = views[i].Frame;
                             views[i].Frame = new RectangleF(i * size.Width, currentFrame.Y, currentFrame.Size.Width, currentFrame.Size.Height);
                         }
@@ -160,9 +148,8 @@ namespace Funny
                     // already do that lazily on scroll.  For now, just position the images around the currently selected one.
                     for (int i = Math.Max(0, currentViewIndex - 1); i < Math.Min(dataSource.Count, currentViewIndex + 2); i++) {
                         if (null != views[i] && currentViewIndex != i) {
-                            newSize = views[i].SizeThatFits(size);
-                            newY = GetViewY(newSize, size);
-                            views[i].Frame = new RectangleF(i * size.Width, newY, newSize.Width, newSize.Height);
+                            views[i].Frame = new RectangleF(i * size.Width, 0, size.Width, size.Height);
+                            views[i].LayoutSubviews();
                         }
                     }
             
@@ -172,27 +159,25 @@ namespace Funny
                     AddSubview(scrollView);
                     //scrollView.Hidden = false;
                 });
-            
-            this.Frame = new RectangleF(Frame.X, Frame.Y, size.Width, size.Height);            
         }
         
         private void FireOnScroll() {
             SizeF bounds =  Frame.Size;
-            int index = GetImageIndex();
+            int index = GetCurrentViewIndex();
             for (int i = Math.Max(0, index - 1); i < Math.Min(dataSource.Count, index + 2); i++) {
                 float x = i * bounds.Width;
                 if (null == views[i]) {
                     views[i] = dataSource.GetView(i);
                     scrollView.AddSubview(views[i]);
                 }
-                SizeF size = views[i].SizeThatFits(Frame.Size);
+                SizeF size = Frame.Size;
                 views[i].Frame = new RectangleF(x, 
                         0, size.Width, size.Height);
-                views[i].SizeToFit();
+                views[i].LayoutSubviews();
             }
             
             if (null != OnScroll) {
-                OnScroll();
+                OnScroll(index);
             }
         }
         

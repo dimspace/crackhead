@@ -50,6 +50,8 @@ namespace Funny
         // when the user quits.
         public override void DidEnterBackground (UIApplication application)
         {
+            Debug.WriteLine("DidEnterBackground");
+            FlickrDataSource.Get().SaveLastViewedImageIndex();
         }
         
         /// This method is called as part of the transiton from background to active state.

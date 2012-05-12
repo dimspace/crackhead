@@ -14,6 +14,7 @@ namespace Funny
     {
         private PagingScrollView scrollView;
         private readonly FlickrDataSource dataSource;
+        private float toolbarHeight;
         
         public ImageViewController(IntPtr handle) : base (handle)
         {
@@ -48,23 +49,22 @@ namespace Funny
             
             Debug.WriteLine("Image controller view did load");
             
-            scrollView = new PagingScrollView();
-                        
-            UIDeviceOrientation orientation = UIDevice.CurrentDevice.Orientation;
-            if (orientation == UIDeviceOrientation.LandscapeLeft ||
-                orientation == UIDeviceOrientation.LandscapeRight) {
-                scrollView.Frame = new RectangleF(0, 0, UIScreen.MainScreen.Bounds.Height, UIScreen.MainScreen.Bounds.Width);
-            } else {
-                scrollView.Frame = UIScreen.MainScreen.Bounds;
-            }
-            View.Frame = scrollView.Frame;
-            
+            scrollView = new PagingScrollView(View.Bounds);
+            // set our scroll view to automatically resize on rotation
+            scrollView.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
+   
+            // figure out the height of the toolbar
+            toolbarHeight = UIScreen.MainScreen.Bounds.Width == View.Bounds.Width ?
+                UIScreen.MainScreen.Bounds.Height - View.Bounds.Height :
+                UIScreen.MainScreen.Bounds.Width - View.Bounds.Height;
+
             View.BackgroundColor = UIColor.White;
             scrollView.BackgroundColor = UIColor.Clear;
             View.AddSubview(scrollView);
             
-            scrollView.OnScroll += delegate() {
+            scrollView.OnScroll += delegate(int index) {
                 SetToolbarHidden(true);
+                FlickrDataSource.Get().LastViewedImageIndex = index;
             };
             
             dataSource.Added += PhotosAdded;
@@ -78,12 +78,17 @@ namespace Funny
                 new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
                 GetLastImageButton() }, false);
             View.BringSubviewToFront(toolbar);
+            
+            int lastViewedIndex = FlickrDataSource.Get().LastViewedImageIndex;
+            if (lastViewedIndex > 0) {
+                scrollView.ScrollToView(lastViewedIndex);
+            }
         }
         
         private UIBarButtonItem GetFirstImageButton() {
             return new UIBarButtonItem(UIBarButtonSystemItem.Rewind, 
                 delegate {
-                    scrollView.ScrollView.ContentOffset = new PointF(0f, 0f);
+                    scrollView.ScrollToView(0);
                 });
         }
         
@@ -91,7 +96,7 @@ namespace Funny
             return new UIBarButtonItem(UIBarButtonSystemItem.FastForward, 
                 delegate {
                     Debug.WriteLine("Width {0}", View.Frame.Width);
-                    scrollView.ScrollView.ContentOffset = new PointF((dataSource.Photos.Count - 1) * scrollView.Frame.Width, 0f);
+                    scrollView.ScrollToView(dataSource.Photos.Count - 1);
                 });
         }
         
@@ -131,6 +136,18 @@ namespace Funny
                 }); 
         }
         
+        public override void ViewWillUnload ()
+        {
+            base.ViewWillUnload ();
+            Debug.WriteLine("ViewWillUnload");
+        }
+        
+        public override void ViewWillDisappear (bool animated)
+        {
+            base.ViewWillDisappear (animated);
+            Debug.WriteLine("ViewWillDisappear");
+        }
+        
         public override void ViewDidUnload ()
         {
             base.ViewDidUnload ();
@@ -143,25 +160,22 @@ namespace Funny
             // remove our event listener.  very important
             dataSource.Added -= PhotosAdded;
             ReleaseDesignerOutlets ();
+            Debug.WriteLine("View unload");
         }
         
         public override bool ShouldAutorotateToInterfaceOrientation (UIInterfaceOrientation toInterfaceOrientation)
         {
-            // Return true for supported orientations
-            return true; // (toInterfaceOrientation != UIInterfaceOrientation.PortraitUpsideDown);
+            return true;
         }
         
         public override void WillRotate (UIInterfaceOrientation toInterfaceOrientation, double duration)
         {
-            SizeF newSize = UIScreen.MainScreen.Bounds.Size; //View.Frame.Size;
+            var newSize = new SizeF(View.Bounds.Height + toolbarHeight, View.Bounds.Width - toolbarHeight);
             
-            if (toInterfaceOrientation == UIInterfaceOrientation.LandscapeLeft ||
-                        toInterfaceOrientation == UIInterfaceOrientation.LandscapeRight) {
-                newSize = new SizeF(newSize.Height, newSize.Width);
-            }
-            View.Frame = new RectangleF(0, 0, newSize.Width, newSize.Height);
+            Debug.WriteLine("Before rotate {0}", scrollView.Frame);
+            
             scrollView.Resize(newSize, duration);
-            
+                        
             base.WillRotate (toInterfaceOrientation, duration);
         }
         
@@ -183,27 +197,11 @@ namespace Funny
         
             public void AddPhotos(ICollection<PhotoInfo> newPhotos) {
                 this.photos.AddRange(newPhotos);
-                ThreadPool.QueueUserWorkItem(delegate {
-                    FetchImages();
-                });
                 if (null != OnChanged) {
                     OnChanged();
-                }                 
-            }
-            
-            private void FetchImages() {
-                NetworkStatus status = Reachability.RemoteHostStatus();
-                foreach (PhotoInfo p in this.photos) {
-                    // on a cache miss, only download if a wifi network is available
-                    // this just warms the cache.  The CaptionImage will use it later
-                    NSData data = FileCacher.LoadUrl(p.Url, NetworkStatus.ReachableViaWiFiNetwork == status);
-
-                    if (null == data) {                        
-                        Debug.WriteLine("Image was null.  Network status: {0}", status);
-                    }
                 }
             }
-            
+
             public UIView GetView(int index) {
                 return new CaptionedImage(photos[index]);
             }

@@ -28,7 +28,8 @@ namespace Funny
             captionLabel.Font = UIFont.FromName("TimesNewRomanPS-ItalicMT", 14);
             
             captionLabel.LineBreakMode = UILineBreakMode.WordWrap;
-            captionLabel.Lines = (int) captionLabel.Text.Length / 55 + 1; // formerly: 2;
+            // set more lines than we need.  we resize to fit later
+            captionLabel.Lines = 4;
             captionLabel.ContentMode = UIViewContentMode.Bottom;
             captionLabel.TextAlignment = UITextAlignment.Center;
 
@@ -59,52 +60,10 @@ namespace Funny
                 SetImage(data);
             }
 
-            if (null != imageView) {
-                PositionCaption(imageView.Frame);
-            }
             AddSubview(captionLabel);
             this.BackgroundColor = UIColor.White;
         }
-        
-        public override SizeF SizeThatFits(SizeF size)
-        {
-            if (size.Width > size.Height) {
-                return size;
-            }
-            if (null == image) {
-                return size;
-            }
-            size = GetImageFrame(size).Size;
-            Debug.WriteLine("SizeThatFits " + size);
-            return new SizeF(size.Width, size.Height + 25);
-        }
-        
-        private bool isPortrait() {
-            UIDeviceOrientation orientation = UIDevice.CurrentDevice.Orientation;
-            Debug.WriteLine("Orientation: {0}", orientation);
-            return orientation == UIDeviceOrientation.Portrait || orientation == UIDeviceOrientation.PortraitUpsideDown;
-        }
-        
-        private float GetViewY(SizeF bounds) {
-            bool portrait = isPortrait();
-            if (portrait) {
-                return (UIScreen.MainScreen.Bounds.Height - bounds.Height) / 2;
-            } else {
-                return 0;
-            }
-        }
-        
-        public override void SizeToFit ()
-        {            
-            SizeF newSize = SizeThatFits(Frame.Size);
-            RectangleF newFrame = new RectangleF(Frame.X, 
-                            GetViewY(newSize), newSize.Width, newSize.Height);
-            Debug.WriteLine("New frame: {0}", newFrame);
-            Frame = newFrame;
-            
-//            LayoutSubviews();
-        }
-        
+
         private void SetImage(NSData data) {
             image = UIImage.LoadFromData(data);
             imageView = new UIImageView(image);
@@ -112,43 +71,37 @@ namespace Funny
         
             imageView.Frame = GetImageFrame(Frame.Size);
             
-            SizeToFit();
             PositionCaption(GetImageFrame(Frame.Size));
 
             AddSubview(imageView);
             BringSubviewToFront(captionLabel);
+            LayoutSubviews();
         }
         
-        private void PositionCaption(RectangleF bounds) {
+        private void PositionCaption(RectangleF imageBounds) {
+            var padding = 15;
+            var width = Frame.Width - padding*2;
+            var size = captionLabel.TextRectForBounds(imageBounds, 3);
             
             // prevent the text from running off the bottom of the screen in landscape mode
-            float y = Math.Min (bounds.Height-40, Frame.Height - CaptionHeight - 10);
+            float y = Math.Min(imageBounds.Y + imageBounds.Height,
+                               Frame.Height - size.Height - 10);
             
-            //var frame = new RectangleF(bounds.X + 15, y,
-            //                                      bounds.Width - 30, CaptionHeight);
-            var frame = new RectangleF(15, y, Frame.Width - 30, CaptionHeight);
+            var frame = new RectangleF(padding, y, width, size.Height);
             captionLabel.Frame = frame;
-            Debug.WriteLine("Caption frame: {0}, bounds: {1}, caption: {2}", frame, bounds, captionLabel.Text);
+            Debug.WriteLine("Caption frame: {0}, bounds: {1}, caption: {2}", frame, imageBounds, captionLabel.Text);
             
         }
         
         private RectangleF GetImageFrame(SizeF size) {
-            float newHeight = image.Size.Height;
-            float newWidth = image.Size.Width;
-            float newXOrigin = 0;
-                     
-            if (image.Size.Width > size.Width) { 
-                newWidth = size.Width;
-                newHeight = (image.Size.Height * size.Width) / image.Size.Width;
-            }
-            if (newHeight > (size.Height-20)) {
-                newHeight = size.Height-20;
-                newWidth = image.Size.Width * size.Height / image.Size.Height;
-                newXOrigin = (size.Width - newWidth) / 2; //
-            }
             
-            return new RectangleF(Math.Max(0, newXOrigin),0, 
-                                  Math.Min(newWidth, size.Width), newHeight);
+            var imageSize = image.Size;
+            var imageScale = Math.Min(size.Width/imageSize.Width, size.Height/imageSize.Height);
+            var scaledImageSize = new SizeF(imageSize.Width*imageScale, imageSize.Height*imageScale);
+            return new RectangleF(
+                (float)Math.Floor(0.5f*(size.Width-scaledImageSize.Width)), 
+                (float)Math.Floor(0.5f*(size.Height-scaledImageSize.Height)), 
+                scaledImageSize.Width, scaledImageSize.Height);
         }
         
         public override void LayoutSubviews()
@@ -159,6 +112,7 @@ namespace Funny
             if (null != image) {
                 imageView.Frame = GetImageFrame(Frame.Size);
                 PositionCaption(imageView.Frame);
+                Debug.WriteLine("Image frame: {0}", imageView.Frame);
             }
         }
         

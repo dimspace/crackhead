@@ -14,6 +14,7 @@ namespace Funny
     public class FlickrDataSource
     {
         private const string PhotosDefaultsKey = "Photos";
+        private const string LastViewedImageIndexKey = "LastViewedImageIndex";
         /// <summary>
         /// Dictionary of photo ids to photos.
         /// </summary>
@@ -21,6 +22,7 @@ namespace Funny
         private readonly Dictionary<string, PhotoInfo> photos = new Dictionary<string, PhotoInfo>();
         private readonly Flickr flickr;
         private DateTime? lastPhotoFetchTimestamp;
+        public int LastViewedImageIndex { get; set; }
         
         public event PhotosAdded Added;
         
@@ -41,13 +43,17 @@ namespace Funny
                     this.photos.Add(p.Id, p);
                 }
             }
+            var lastIndex = NSUserDefaults.StandardUserDefaults[LastViewedImageIndexKey] as NSNumber;
+            if (null != lastIndex) {
+                LastViewedImageIndex = lastIndex.Int32Value;
+            }
         }
         
         public bool Stale {
             get {
-                // photos are stale if we've never fetched or it's been more than 12 hours
+                // photos are stale if we've never fetched or it's been more than 6 hours
                 return lastPhotoFetchTimestamp == null ? true : 
-                        (DateTime.UtcNow - lastPhotoFetchTimestamp) > TimeSpan.FromHours(12);
+                        (DateTime.UtcNow - lastPhotoFetchTimestamp) > TimeSpan.FromHours(6);
             }
         }
         
@@ -103,6 +109,11 @@ namespace Funny
             if (newPhotos.Count > 0 && null != Added) {
                 Added(newPhotos);
             }
+
+            // warm the image file cache with the first two images
+            foreach (PhotoInfo p in this.photos.Values) {
+                FileCacher.LoadUrl(p.Url, true);
+            }
         }
         
         private string GetUrl(Photo photo) {
@@ -122,6 +133,10 @@ namespace Funny
             
             NSUserDefaults.StandardUserDefaults[PhotosDefaultsKey] = arr;
             NSUserDefaults.StandardUserDefaults.Synchronize();
+        }
+        
+        public void SaveLastViewedImageIndex() {
+            NSUserDefaults.StandardUserDefaults[LastViewedImageIndexKey] = new NSNumber(LastViewedImageIndex);
         }
     }
     
