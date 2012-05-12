@@ -69,13 +69,8 @@ namespace Funny
             imageView = new UIImageView(image);
             imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
         
-            imageView.Frame = GetImageFrame(Frame.Size);
-            
-            PositionCaption(GetImageFrame(Frame.Size));
-
             AddSubview(imageView);
             BringSubviewToFront(captionLabel);
-            LayoutSubviews();
         }
         
         private void PositionCaption(RectangleF imageBounds) {
