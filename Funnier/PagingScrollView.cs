@@ -96,15 +96,20 @@ namespace Funny
             if (null == dataSource) return;
             
             int currentViewIndex = GetCurrentViewIndex();
-            
+            Debug.WriteLine("Current index = {0}", currentViewIndex);
             UIView currentImage = views[currentViewIndex];
+
+            if (null == currentImage) {
+                Debug.WriteLine("PagingScrollView.Resize current image is null");
+                UpdateContent(size, currentViewIndex);
+                return;
+            }
             float currentY = currentImage.Frame.Y;
             currentImage.RemoveFromSuperview();
             AddSubview(currentImage);
             BringSubviewToFront(currentImage);
             currentImage.Frame = new RectangleF(0, currentY, currentImage.Frame.Width, currentImage.Frame.Height);
             
-            Debug.WriteLine("Current index = {0}", currentViewIndex);
             Debug.WriteLine("Current view = {0} {1}", currentImage, currentImage.Frame);
             
             scrollView.Hidden = true;
@@ -118,27 +123,31 @@ namespace Funny
 
                     currentImage.RemoveFromSuperview();
                     scrollView.AddSubview(currentImage);
-                    
-                    // we have to adjust all the photo x origins, otherwise they'll overlap other images
-                    for (int i = 0; i < dataSource.Count; i++) {
-                        if (null != views[i]) { // && currentViewIndex != i) {
-                            var currentFrame = views[i].Frame;
-                            views[i].Frame = new RectangleF(i * size.Width, currentFrame.Y, currentFrame.Size.Width, currentFrame.Size.Height);
-                        }
-                    }
-                    // but I don't want to incur the cost of trying to exactly resize and reposition every image - we 
-                    // already do that lazily on scroll.  For now, just position the images around the currently selected one.
-                    for (int i = Math.Max(0, currentViewIndex - 1); i < Math.Min(dataSource.Count, currentViewIndex + 2); i++) {
-                        if (null != views[i] && currentViewIndex != i) {
-                            views[i].Frame = new RectangleF(i * size.Width, 0, size.Width, size.Height);
-                        }
-                    }
-            
-                    scrollView.ContentSize = new SizeF(size.Width * dataSource.Count, size.Height);
 
-                    scrollView.ContentOffset = new PointF(currentViewIndex * Frame.Width, 0);
+                    UpdateContent(size, currentViewIndex);
                     scrollView.Hidden = false;
                 });
+        }
+        
+        private void UpdateContent(SizeF newSize, int currentViewIndex) {
+            // we have to adjust all the photo x origins, otherwise they'll overlap other images
+            for (int i = 0; i < dataSource.Count; i++) {
+                if (null != views[i]) { // && currentViewIndex != i) {
+                    var currentFrame = views[i].Frame;
+                    views[i].Frame = new RectangleF(i * newSize.Width, currentFrame.Y, currentFrame.Size.Width, currentFrame.Size.Height);
+                }
+            }
+            // but I don't want to incur the cost of trying to exactly resize and reposition every image - we 
+            // already do that lazily on scroll.  For now, just position the images around the currently selected one.
+            for (int i = Math.Max(0, currentViewIndex - 1); i < Math.Min(dataSource.Count, currentViewIndex + 2); i++) {
+                if (null != views[i] && currentViewIndex != i) {
+                    views[i].Frame = new RectangleF(i * newSize.Width, 0, newSize.Width, newSize.Height);
+                }
+            }
+            
+            scrollView.ContentSize = new SizeF(newSize.Width * dataSource.Count, newSize.Height);
+
+            scrollView.ContentOffset = new PointF(currentViewIndex * Frame.Width, Frame.Y);
         }
         
         private void FireOnScroll() {
