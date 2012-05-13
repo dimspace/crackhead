@@ -64,6 +64,15 @@ namespace Funny
             }
         }
         
+        public override void ReceivedLocalNotification(UIApplication application, 
+          UILocalNotification notification)
+        {
+            //Do something to respond to the scheduled local notification
+            UIAlertView alert = new UIAlertView("Funnier", 
+                    notification.AlertBody, null, "Okay");
+            alert.Show();
+        }
+        
         private void FetchCartoonsIfConnected() {
             NetworkStatus status = Reachability.RemoteHostStatus();
             if (NetworkStatus.ReachableViaWiFiNetwork != status) {

@@ -14,7 +14,7 @@ namespace Funny
     {
         private PagingScrollView scrollView;
         private readonly FlickrDataSource dataSource;
-        private float toolbarHeight;
+        private float statusBarHeight;
         
         public ImageViewController(IntPtr handle) : base (handle)
         {
@@ -41,12 +41,6 @@ namespace Funny
             // Release any cached data, images, etc that aren't in use.
             scrollView.FreeUnusedViews();
         }
-
-        float ComputeToolbarHeight ()
-        {            
-            return Math.Max(UIScreen.MainScreen.Bounds.Height - View.Bounds.Height,
-                    UIScreen.MainScreen.Bounds.Width - View.Bounds.Width);
-        }
         
         
         public override void ViewDidLoad ()
@@ -55,11 +49,11 @@ namespace Funny
             
             Debug.WriteLine("Image controller view did load");
             
+            statusBarHeight = UIApplication.SharedApplication.StatusBarFrame.Height;
+            
             scrollView = new PagingScrollView(View.Bounds);
             // set our scroll view to automatically resize on rotation
             scrollView.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
-
-            toolbarHeight = ComputeToolbarHeight();
 
             View.BackgroundColor = UIColor.White;
             scrollView.BackgroundColor = UIColor.Clear;
@@ -83,10 +77,14 @@ namespace Funny
             }
             
             scrollView.AddGestureRecognizer(new UITapGestureRecognizer(this, new MonoTouch.ObjCRuntime.Selector("tapToggleToolbar")));
-            toolbar.SetItems(new UIBarButtonItem[] { 
+            var spacerButton = new UIBarButtonItem(UIBarButtonSystemItem.FixedSpace);
+            spacerButton.Width = 5;
+            toolbar.SetItems(new UIBarButtonItem[] {
+//                spacerButton,
                 GetFirstImageButton(), 
                 new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace),
-                GetLastImageButton() }, false);
+                GetLastImageButton(),
+                spacerButton}, false);
             View.BringSubviewToFront(toolbar);
             
             int lastViewedIndex = FlickrDataSource.Get().LastViewedImageIndex;
@@ -177,17 +175,27 @@ namespace Funny
             return true;
         }
         
+        private static bool IsLandscape(UIInterfaceOrientation orientation) {
+            return orientation == UIInterfaceOrientation.LandscapeRight || orientation == UIInterfaceOrientation.LandscapeLeft;
+        }
+        
         public override void WillRotate (UIInterfaceOrientation toInterfaceOrientation, double duration)
         {
-            // We want to tell the scrollView what its new size will be after rotating and
-            // we have to take the toolbar size into account.  Right now our height is smaller because it is reduced by the 
-            // size of the toolbar, so add the toolbar height to the current height.  The current width will need to shrink
-            // by the size of the toolbar.  Since this is a rotation, we're swapping width and height.
-            var newSize = new SizeF(View.Bounds.Height + toolbarHeight, View.Bounds.Width - toolbarHeight);
+            UIInterfaceOrientation fromOrientation = UIApplication.SharedApplication.StatusBarOrientation;
             
-            Debug.WriteLine("Before rotate {0}", scrollView.Frame);
-            
-            scrollView.Resize(newSize, duration);
+            // we only need to do fancy stuff when rotating portrait / landscape.
+            // 180 degree rotations require nothing special
+            if (IsLandscape(fromOrientation) != IsLandscape(toInterfaceOrientation)) {
+                // We want to tell the scrollView what its new size will be after rotating and
+                // we have to take the toolbar size into account.  Right now our height is smaller because it is reduced by the 
+                // size of the toolbar, so add the toolbar height to the current height.  The current width will need to shrink
+                // by the size of the toolbar.  Since this is a rotation, we're swapping width and height.                
+                var newSize = new SizeF(View.Bounds.Height + statusBarHeight, View.Bounds.Width - statusBarHeight);
+                
+                Debug.WriteLine("Before rotate. {0} to {1}", scrollView.Frame.Size, newSize);
+                
+                scrollView.Resize(newSize, duration);
+            }
                         
             base.WillRotate (toInterfaceOrientation, duration);
         }
