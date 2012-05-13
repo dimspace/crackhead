@@ -23,6 +23,8 @@
 		<integer>1</integer>
 		<integer>2</integer>
 	</array>
+    <key>UIPrerenderedIcon</key>
+	<true/>
 	<key>UIMainStoryboardFile</key>
 	<string>MainStoryboard_iPhone</string>
 	<key>UIMainStoryboardFile~ipad</key>

@@ -68,6 +68,16 @@ namespace Funny
 
         public void FreeUnusedViews() {
             // FIXME remove all off screen views in the scroll viewer
+            var index = GetCurrentViewIndex();
+            for (int i = 0; i < views.Length; i++) {
+                if (i < index - 1 || i > index + 1) {
+                    if (null != views[i]) {
+                        Debug.WriteLine("Releasing view {0}", views[i]);
+                        views[i].RemoveFromSuperview();
+                        views[i] = null;
+                    }
+                }
+            }
         }
         
         public int GetCurrentViewIndex() {
@@ -130,17 +140,13 @@ namespace Funny
         }
         
         private void UpdateContent(SizeF newSize, int currentViewIndex) {
+            // rather than resizing all the existing views, just release most of them (all but the 
+            // current and the view preceeding and following
+            FreeUnusedViews();
+            
             // we have to adjust all the photo x origins, otherwise they'll overlap other images
-            for (int i = 0; i < dataSource.Count; i++) {
-                if (null != views[i]) { // && currentViewIndex != i) {
-                    var currentFrame = views[i].Frame;
-                    views[i].Frame = new RectangleF(i * newSize.Width, currentFrame.Y, currentFrame.Size.Width, currentFrame.Size.Height);
-                }
-            }
-            // but I don't want to incur the cost of trying to exactly resize and reposition every image - we 
-            // already do that lazily on scroll.  For now, just position the images around the currently selected one.
-            for (int i = Math.Max(0, currentViewIndex - 1); i < Math.Min(dataSource.Count, currentViewIndex + 2); i++) {
-                if (null != views[i] && currentViewIndex != i) {
+            for (int i = Math.Max (0, currentViewIndex - 1); i < Math.Min(dataSource.Count, currentViewIndex + 1); i++) {
+                if (null != views[i]) {
                     views[i].Frame = new RectangleF(i * newSize.Width, 0, newSize.Width, newSize.Height);
                 }
             }
