@@ -5,6 +5,9 @@ using System.Threading;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 
+/// <summary>
+/// Author: sdaubin
+/// </summary>
 namespace Funny
 {
     /// <summary>

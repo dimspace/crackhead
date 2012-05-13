@@ -7,6 +7,9 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MonoTouch.CoreGraphics;
 
+/// <summary>
+/// Author: sdaubin
+/// </summary>
 namespace Funny
 {
     public class CaptionedImage : UIView

@@ -8,6 +8,9 @@ using MonoTouch.UIKit;
 
 using FlickrNet;
 
+/// <summary>
+/// Author: sdaubin
+/// </summary>
 namespace Funny
 {
     // The UIApplicationDelegate for the application. This class is responsible for launching the 

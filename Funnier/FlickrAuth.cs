@@ -1,5 +1,8 @@
 using System;
 
+/// <summary>
+/// Author: sdaubin
+/// </summary>
 namespace Funny
 {
     public static class FlickrAuth

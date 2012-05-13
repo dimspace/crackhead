@@ -3,8 +3,14 @@ using System;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 
+/// <summary>
+/// Author: sdaubin
+/// </summary>
 namespace Funny
 {
+    /// <summary>
+    /// A callback for a PagingViewDataSource change event.
+    /// </summary>
     public delegate void Changed();
     
     /// <summary>

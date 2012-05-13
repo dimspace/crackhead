@@ -5,8 +5,14 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MonoTouch.CoreGraphics;
 
+/// <summary>
+/// Author: sdaubin
+/// </summary>
 namespace Funny
 {
+    /// <summary>
+    /// A delegate that is fired when a paging scroll view is scrolled.
+    /// </summary>
     public delegate void Scrolled();
     
     public class PagingScrollView : UIView, IResizable

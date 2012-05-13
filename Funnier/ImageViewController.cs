@@ -8,6 +8,9 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using FlickrNet;
 
+/// <summary>
+/// Author: sdaubin
+/// </summary>
 namespace Funny
 {
     public partial class ImageViewController : UIViewController

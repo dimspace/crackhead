@@ -5,6 +5,9 @@ using System.Diagnostics;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 
+/// <summary>
+/// Author: sdaubin
+/// </summary>
 namespace Funny
 {
     public static class FileCacher

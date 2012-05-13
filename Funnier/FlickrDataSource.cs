@@ -7,6 +7,9 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MonoTouch.ObjCRuntime;
 
+/// <summary>
+/// Author: sdaubin
+/// </summary>
 namespace Funny
 {
     public delegate void PhotosAdded(List<PhotoInfo> photos);
