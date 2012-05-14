@@ -32,7 +32,7 @@ namespace Funny
     /// </summary>
     public delegate void Scrolled();
     
-    public class PagingScrollView : UIView, IResizable
+    public class PagingScrollView : UIView
     {
         private PagingViewDataSource dataSource;
         private UIView[] views;
@@ -113,70 +113,24 @@ namespace Funny
             scrollView.ContentOffset = new PointF(index * scrollView.Frame.Width, 0f);
             FireOnScroll();
         }
-
-        /// <summary>
-        /// Animate a resize (usually for a screen rotation).
-        /// Pop the current view out of the scroll view, hide the scrollview, rotate the current view,
-        /// then put it back into the scroll view and make it visible.
-        /// </summary>
-        /// <param name='size'>
-        /// Size.
-        /// </param>
-        /// <param name='duration'>
-        /// Duration.
-        /// </param>
-        public void Resize(SizeF size, double duration) {
-            if (null == dataSource) return;
+  
+        public int PrepareForRotation() {
+            var index = GetCurrentViewIndex();
             
-            int currentViewIndex = GetCurrentViewIndex();
-            Debug.WriteLine("Current index = {0}", currentViewIndex);
-            UIView currentImage = views[currentViewIndex];
-
-            if (null == currentImage) {
-                Debug.WriteLine("PagingScrollView.Resize current image is null");
-                UpdateContent(size, currentViewIndex);
-                return;
-            }
-            float currentY = currentImage.Frame.Y;
-            currentImage.RemoveFromSuperview();
-            AddSubview(currentImage);
-            BringSubviewToFront(currentImage);
-            currentImage.Frame = new RectangleF(0, currentY, currentImage.Frame.Width, currentImage.Frame.Height);
-            
-            Debug.WriteLine("Current view = {0} {1}", currentImage, currentImage.Frame);
-            
-            scrollView.Hidden = true;
-            
-            UIView.Animate(duration, 0, UIViewAnimationOptions.TransitionNone,
-                delegate() {
-                    currentImage.Frame = new RectangleF(0, 0, size.Width, size.Height);
-                }, 
-                delegate() {
-                    Debug.WriteLine("animation done");
-
-                    currentImage.RemoveFromSuperview();
-                    scrollView.AddSubview(currentImage);
-
-                    UpdateContent(size, currentViewIndex);
-                    scrollView.Hidden = false;
-                });
-        }
-        
-        private void UpdateContent(SizeF newSize, int currentViewIndex) {
-            // rather than resizing all the existing views, just release most of them (all but the 
-            // current and the view preceeding and following
-            FreeUnusedViews();
-            
-            // we have to adjust all the photo x origins, otherwise they'll overlap other images
-            for (int i = Math.Max (0, currentViewIndex - 1); i < Math.Min(dataSource.Count, currentViewIndex + 1); i++) {
-                if (null != views[i]) {
-                    views[i].Frame = new RectangleF(i * newSize.Width, 0, newSize.Width, newSize.Height);
+            // destroy all views but the current one
+            for (int i = 0; i < dataSource.Count; i++) {
+                if (i != index && null != views[i]) {
+                    views[i].RemoveFromSuperview();
+                    views[i] = null;
                 }
             }
             
-            scrollView.ContentSize = new SizeF(newSize.Width * dataSource.Count, newSize.Height);
-
-            scrollView.ContentOffset = new PointF(currentViewIndex * Frame.Width, Frame.Y);
+            return index;
+        }
+        
+        public void FinishRotation(int currentViewIndex) {
+            scrollView.ContentSize = new SizeF(Bounds.Width * dataSource.Count, Bounds.Height);
+            scrollView.ContentOffset = new PointF(currentViewIndex * Bounds.Width, Bounds.Y);
         }
         
         private void FireOnScroll() {

@@ -54,6 +54,8 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Developer</CodesignKey>
+    <MtouchArch>ARMv7</MtouchArch>
+    <MtouchI18n />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -71,7 +73,6 @@
     <Compile Include="FlickrAuth.cs" />
     <Compile Include="FileCacher.cs" />
     <Compile Include="CaptionedImage.cs" />
-    <Compile Include="IResizable.cs" />
     <Compile Include="PagingScrollView.cs" />
     <Compile Include="PagingViewDataSource.cs" />
     <Compile Include="ImageViewController.cs" />

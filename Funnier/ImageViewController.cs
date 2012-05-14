@@ -34,7 +34,6 @@ namespace Funny
     {
         private PagingScrollView scrollView;
         private readonly FlickrDataSource dataSource;
-        private float statusBarHeight;
         
         public ImageViewController(IntPtr handle) : base (handle)
         {
@@ -68,8 +67,6 @@ namespace Funny
             base.ViewDidLoad ();            
             
             Debug.WriteLine("Image controller view did load");
-            
-            statusBarHeight = UIApplication.SharedApplication.StatusBarFrame.Height;
             
             scrollView = new PagingScrollView(View.Bounds);
             // set our scroll view to automatically resize on rotation
@@ -106,22 +103,14 @@ namespace Funny
                 GetLastImageButton(),
                 spacerButton}, false);
             View.BringSubviewToFront(toolbar);
-            
-            int lastViewedIndex = FlickrDataSource.Get().LastViewedImageIndex;
-            if (lastViewedIndex > 0) {
-                scrollView.ScrollToView(lastViewedIndex);
-            }
         }
         
         public override void ViewWillAppear (bool animated)
         {
-            base.ViewDidAppear (animated);
-            Debug.WriteLine("ViewWillAppear {0}  {1}", scrollView.Bounds, View.Bounds);
-            // hack to fix a bug in which the initial layout freaks if the device
-            // is rotated to landscape before the controller appears
-            if (View.Bounds.Width > View.Bounds.Height) {
-                scrollView.Resize(View.Bounds.Size, 0);
-            }
+            base.ViewWillAppear (animated);
+            var lastViewedIndex = FlickrDataSource.Get().LastViewedImageIndex;
+            scrollView.ScrollToView(lastViewedIndex);
+            scrollView.FinishRotation(lastViewedIndex);
         }
         
         private UIBarButtonItem GetFirstImageButton() {
@@ -199,25 +188,17 @@ namespace Funny
             return orientation == UIInterfaceOrientation.LandscapeRight || orientation == UIInterfaceOrientation.LandscapeLeft;
         }
         
+        int currentIndex;
         public override void WillRotate (UIInterfaceOrientation toInterfaceOrientation, double duration)
         {
-            UIInterfaceOrientation fromOrientation = UIApplication.SharedApplication.StatusBarOrientation;
-            
-            // we only need to do fancy stuff when rotating portrait / landscape.
-            // 180 degree rotations require nothing special
-            if (IsLandscape(fromOrientation) != IsLandscape(toInterfaceOrientation)) {
-                // We want to tell the scrollView what its new size will be after rotating and
-                // we have to take the toolbar size into account.  Right now our height is smaller because it is reduced by the 
-                // size of the toolbar, so add the toolbar height to the current height.  The current width will need to shrink
-                // by the size of the toolbar.  Since this is a rotation, we're swapping width and height.                
-                var newSize = new SizeF(View.Bounds.Height + statusBarHeight, View.Bounds.Width - statusBarHeight);
-                
-                Debug.WriteLine("Before rotate. {0} to {1}", scrollView.Frame.Size, newSize);
-                
-                scrollView.Resize(newSize, duration);
-            }
-                        
+            currentIndex = scrollView.PrepareForRotation();
             base.WillRotate (toInterfaceOrientation, duration);
+        }
+        
+        public override void DidRotate (UIInterfaceOrientation fromInterfaceOrientation)
+        {
+            base.DidRotate (fromInterfaceOrientation);
+            scrollView.FinishRotation(currentIndex);
         }
         
         private class DataSource : PagingViewDataSource {
@@ -244,7 +225,9 @@ namespace Funny
             }
 
             public UIView GetView(int index) {
-                return new CaptionedImage(photos[index]);
+                var view = new CaptionedImage(photos[index]);
+                view.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
+                return view;
             }
         }
     }
