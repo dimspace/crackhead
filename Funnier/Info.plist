@@ -11,6 +11,10 @@
 		<string>icons/icon-72.png</string>
 		<string>icons/icon-144.png</string>
 		<string>icons/icon-512.png</string>
+		<string>icons/Spot_29.png</string>
+		<string>icons/Spot_58.png</string>
+		<string>icons/Spot_50.png</string>
+		<string>icons/Spot_100.png</string>
 	</array>
 	<key>CFBundleIdentifier</key>
 	<string>Funnier</string>
@@ -21,6 +25,7 @@
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
+		<integer>2</integer>
 	</array>
 	<key>UIMainStoryboardFile</key>
 	<string>MainStoryboard_iPhone</string>
