@@ -188,7 +188,7 @@ namespace Funny
             return orientation == UIInterfaceOrientation.LandscapeRight || orientation == UIInterfaceOrientation.LandscapeLeft;
         }
         
-        int currentIndex;
+        int? currentIndex;
         public override void WillRotate (UIInterfaceOrientation toInterfaceOrientation, double duration)
         {
             currentIndex = scrollView.PrepareForRotation();

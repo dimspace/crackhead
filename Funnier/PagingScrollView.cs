@@ -114,7 +114,10 @@ namespace Funny
             FireOnScroll();
         }
   
-        public int PrepareForRotation() {
+        public int? PrepareForRotation() {
+            if (null == dataSource) {
+                return null;
+            }
             var index = GetCurrentViewIndex();
             
             // destroy all views but the current one
@@ -130,10 +133,13 @@ namespace Funny
             return index;
         }
         
-        public void FinishRotation(int currentViewIndex) {
-            if (null == dataSource) return;
-            scrollView.ContentSize = new SizeF(Bounds.Width * dataSource.Count, Bounds.Height);
-            scrollView.ContentOffset = new PointF(currentViewIndex * Bounds.Width, Bounds.Y);
+        public void FinishRotation(int? currentViewIndex) {
+            if (null != dataSource) {
+                scrollView.ContentSize = new SizeF(Bounds.Width * dataSource.Count, Bounds.Height);
+            }
+            if (currentViewIndex.HasValue) {
+                scrollView.ContentOffset = new PointF(currentViewIndex.Value * Bounds.Width, Bounds.Y);
+            }
         }
         
         private void FireOnScroll() {
