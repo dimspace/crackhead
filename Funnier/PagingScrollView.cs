@@ -131,11 +131,15 @@ namespace Funny
         }
         
         public void FinishRotation(int currentViewIndex) {
+            if (null == dataSource) return;
             scrollView.ContentSize = new SizeF(Bounds.Width * dataSource.Count, Bounds.Height);
             scrollView.ContentOffset = new PointF(currentViewIndex * Bounds.Width, Bounds.Y);
         }
         
         private void FireOnScroll() {
+            if (null == dataSource) {
+                return;
+            }
             SizeF bounds =  Frame.Size;
             int index = GetCurrentViewIndex();
             for (int i = Math.Max(0, index - 1); i < Math.Min(dataSource.Count, index + 2); i++) {
