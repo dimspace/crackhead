@@ -46,7 +46,7 @@ namespace Funny
 //Times New Roman  TimesNewRomanPSMT
 //Times New Roman  TimesNewRomanPS-BoldItalicMT
             captionLabel.Font = UIFont.FromName("TimesNewRomanPS-ItalicMT", 
-                                                (DeviceUtils.IsIPad() ? 17 : 14));
+                                                (DeviceUtils.IsIPad() ? 20 : 14));
             
             captionLabel.LineBreakMode = UILineBreakMode.WordWrap;
             // set more lines than we need.  we resize to fit later

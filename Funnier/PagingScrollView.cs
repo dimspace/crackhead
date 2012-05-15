@@ -124,6 +124,8 @@ namespace Funny
                     views[i] = null;
                 }
             }
+            float maxBound = Math.Max(Bounds.Width, Bounds.Height);
+            scrollView.ContentSize = new SizeF(maxBound * dataSource.Count, maxBound);
             
             return index;
         }
