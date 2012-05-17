@@ -30,9 +30,16 @@ using MonoTouch.ObjCRuntime;
 namespace Funny
 {
     public delegate void PhotosAdded(List<PhotoInfo> photos);
+    public delegate void NoticeMessage(string message);
     
     public class FlickrDataSource
     {
+        private const uint CarrierDownloadLimitInBytes = 1048576
+#if DEBUG
+             / 4;  // limit to 1/4 mb
+#else
+             * 5;  // limit to 5 mb
+#endif
         private const string PhotosDefaultsKey = "Photos";
         private const string LastViewedImageIndexKey = "LastViewedImageIndex";
         /// <summary>
@@ -45,6 +52,7 @@ namespace Funny
         public int LastViewedImageIndex { get; set; }
         
         public event PhotosAdded Added;
+        public event NoticeMessage Messages;
         
         private readonly static FlickrDataSource singleton = new FlickrDataSource();
         public static FlickrDataSource Get() {
@@ -68,12 +76,34 @@ namespace Funny
                 LastViewedImageIndex = lastIndex.Int32Value;
             }
         }
+
+        /// <summary>
+        /// Remove photos that have not already been downloaded.
+        /// </summary>
+        public void Prune() {
+            List<string> keysToRemove = new List<string>();
+            foreach (KeyValuePair<string, PhotoInfo> entry in photos) {
+                if (null == FileCacher.LoadUrl(entry.Value.Url, false)) {
+                    keysToRemove.Add(entry.Key);
+                }
+            }
+
+            Debug.WriteLine("Pruning {0} images", keysToRemove.Count);
+            foreach (string id in keysToRemove) {
+                photos.Remove(id);
+            }
+        }
         
         public bool Stale {
             get {
+#if DEBUG
+                TimeSpan staleSpan = TimeSpan.FromMinutes(5);
+#else
+                TimeSpan staleSpan = TimeSpan.FromHours(6);
+#endif
                 // photos are stale if we've never fetched or it's been more than 6 hours
                 return lastPhotoFetchTimestamp == null ? true : 
-                        (DateTime.UtcNow - lastPhotoFetchTimestamp) > TimeSpan.FromHours(6);
+                        (DateTime.UtcNow - lastPhotoFetchTimestamp) > staleSpan;
             }
         }
         
@@ -86,7 +116,7 @@ namespace Funny
         /// <summary>
         /// Fetch photo information from Flickr and persist it to local storage if there are new photos.
         /// </summary>
-        public void Fetch() {
+        public void Fetch(NetworkStatus status) {
             lastPhotoFetchTimestamp = DateTime.UtcNow;
             PhotosetPhotoCollection photos;
 
@@ -119,27 +149,57 @@ namespace Funny
             if (changed) {
                 Save();
             }
-            
+
+            bool isWifi = NetworkStatus.ReachableViaWiFiNetwork == status;
             if (newPhotos.Count > 0) {
-                // Fire the Added event
-                if (null != Added) {
+                // Fire the Added event if we're on wifi - otherwise we're probably not going to download all images
+                if (null != Added && isWifi) {
                     Added(newPhotos);
                 }
-                var message = String.Format("{0} new cartoon{1} arrived", newPhotos.Count, newPhotos.Count > 1 ? "s" : "");
-                UILocalNotification notification = new UILocalNotification{
+
+                var message = String.Format("{0} new cartoon{1} arrived", 
+                                            newPhotos.Count, newPhotos.Count > 1 ? "s" : "");
+                if (null != Messages) {
+                    Messages(message);
+                }
+
+                if (isWifi) {
+                    SendNotification(message, newPhotos.Count); 
+                }
+            }
+
+            // limit cell downloads to 5 mb
+            uint byteLimit = NetworkStatus.ReachableViaCarrierDataNetwork == status ? CarrierDownloadLimitInBytes : UInt32.MaxValue;
+            uint byteCount = 0;
+            // warm the image file cache
+            int i = 0;
+            for (; i < newPhotos.Count && byteCount < byteLimit; i++) {
+                PhotoInfo p = newPhotos[i];
+                var data = FileCacher.LoadUrl(p.Url, true);
+                byteCount += data.Length;
+            }
+
+            if (!isWifi) {
+                if (null != Added) {
+                    // send a notification for the subset of images that were downloaded
+                    Added(newPhotos.GetRange(0, i));
+                }
+                SendNotification(String.Format(
+                    "{0} new cartoon{1} arrived.  {2} were downloaded.  The rest will be downloaded when a wifi connection is available", 
+                                           newPhotos.Count, (newPhotos.Count > 1 ? "s" : ""), i), newPhotos.Count); 
+            }
+        }
+
+        private void SendNotification(string message, int count) {
+            Debug.WriteLine("Sending notification: {0}", message);
+            UILocalNotification notification = new UILocalNotification{
                     FireDate = DateTime.Now,
                     TimeZone = NSTimeZone.LocalTimeZone,
                     AlertBody = message,
                     RepeatInterval = 0,
-                    ApplicationIconBadgeNumber = newPhotos.Count
+                    ApplicationIconBadgeNumber = count
                 };
-                UIApplication.SharedApplication.ScheduleLocalNotification(notification);
-            }
-
-            // warm the image file cache
-            foreach (PhotoInfo p in newPhotos) {
-                FileCacher.LoadUrl(p.Url, true);
-            }
+            UIApplication.SharedApplication.ScheduleLocalNotification(notification);
         }
         
         private string GetUrl(Photo photo) {

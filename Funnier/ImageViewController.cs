@@ -42,6 +42,7 @@ namespace Funny
         
         private void PhotosAdded(List<PhotoInfo> photos) {
             InvokeOnMainThread (delegate {
+                lblLoadingMessage.Hidden = true;
                 if (null == scrollView.DataSource) {
                     scrollView.DataSource = new DataSource(photos);
                 } else {
@@ -89,7 +90,14 @@ namespace Funny
             };
             
             dataSource.Added += PhotosAdded;
+            dataSource.Messages += delegate(string message) {
+                InvokeOnMainThread(delegate {
+                    lblLoadingMessage.Text = message;
+                    View.SetNeedsDisplay();
+                });
+            };
             if (dataSource.Photos.Count > 0) {
+                lblLoadingMessage.Hidden = true;
                 scrollView.DataSource = new DataSource(dataSource.Photos);
             }
             

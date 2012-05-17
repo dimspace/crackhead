@@ -95,36 +95,41 @@ namespace Funny
         
         private void FetchCartoonsIfConnected() {
             NetworkStatus status = Reachability.RemoteHostStatus();
-            if (NetworkStatus.ReachableViaWiFiNetwork != status) {
+            Debug.WriteLine("Network status: {0}", status);
+            var photoCount = FlickrDataSource.Get().Photos.Count;
+            if (photoCount > 0 && NetworkStatus.ReachableViaCarrierDataNetwork == status) {
+                Debug.WriteLine("Skipping download via carrier.  Photo count: {0}", photoCount);
+                FlickrDataSource.Get().Prune();
+                return;
+            }
+            if (NetworkStatus.NotReachable == status) {
 
                 Debug.WriteLine("Skipping download.  Network status: {0}", status);
             } else {
                 System.Threading.ThreadPool.QueueUserWorkItem(
                     delegate {
-                        FetchCartoons();
+                        FetchCartoons(status);
                     });
             }
         }
         
-        private void FetchCartoons() {
+        private void FetchCartoons(NetworkStatus status) {
             // FIXME revisit this error handling logic
+            // only display a modal error message if there are no photos (initial startup)
+            var photoCount = FlickrDataSource.Get().Photos.Count;
             try {
-                FlickrDataSource.Get().Fetch();
-            } catch (System.Net.WebException ex) {
-                Debug.WriteLine(ex);
-                InvokeOnMainThread (delegate {
-                    using (var alert = new UIAlertView ("Error", "Unable to download cartoons - " + ex.Message, null, "Ok")) {
-                        alert.Show ();
-                    }
-                });                    
+                FlickrDataSource.Get().Fetch(status);
             }
             catch (Exception ex) {
                 Debug.WriteLine(ex);
-                InvokeOnMainThread (delegate {
-                    using (var alert = new UIAlertView ("Error", "Unable to download cartoons - " + ex.Message, null, "Ok")) {
-                        alert.Show ();
-                    }
-                });
+                if (photoCount == 0) {
+
+                    InvokeOnMainThread (delegate {
+                        using (var alert = new UIAlertView ("Error", "Unable to download cartoons - " + ex.Message, null, "Ok")) {
+                            alert.Show ();
+                        }
+                    });
+                }
             }
         }
     }

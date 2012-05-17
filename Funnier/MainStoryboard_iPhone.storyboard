@@ -23,7 +23,7 @@
                             </toolbar>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Loading Content" lineBreakMode="tailTruncation" minimumFontSize="10" id="2mq-pM-N6b">
                                 <rect key="frame" x="97" y="219" width="127" height="21"/>
-                                <autoresizingMask key="autoresizingMask"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" name="TimesNewRomanPSMT" family="Times New Roman" pointSize="20"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
@@ -32,6 +32,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <connections>
+                        <outlet property="lblLoadingMessage" destination="2mq-pM-N6b" id="9gb-c5-Qkb"/>
                         <outlet property="toolbar" destination="Ic3-EZ-di1" id="fMd-zK-mdj"/>
                     </connections>
                 </viewController>
@@ -43,6 +44,7 @@
         <class className="ImageViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/ImageViewController.h"/>
             <relationships>
+                <relationship kind="outlet" name="lblLoadingMessage" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="toolbar" candidateClass="UIToolbar"/>
             </relationships>
         </class>

@@ -16,7 +16,7 @@
 		<string>icons/Spot_100.png</string>
 	</array>
 	<key>CFBundleIdentifier</key>
-	<string>Funnier</string>
+	<string>com.saxon.Funnier</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>MinimumOSVersion</key>
