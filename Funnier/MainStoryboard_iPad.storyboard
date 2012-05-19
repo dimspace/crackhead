@@ -20,9 +20,9 @@
                                     <barButtonItem title="Item" id="d7A-2t-UAH"/>
                                 </items>
                             </toolbar>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Loading Content" lineBreakMode="tailTruncation" minimumFontSize="10" id="dCN-3S-AbG">
-                                <rect key="frame" x="259" y="476" width="251" height="52"/>
-                                <autoresizingMask key="autoresizingMask"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Loading Content" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="dCN-3S-AbG">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1004"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" name="TimesNewRomanPSMT" family="Times New Roman" pointSize="36"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>

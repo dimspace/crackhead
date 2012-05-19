@@ -66,6 +66,7 @@ namespace Funny
                         data = FileCacher.LoadUrl(photoInfo.Url, true);
                         if (null == data) {
                             // this is not expected
+                            Debug.WriteLine("Null data after LoadUrl: {0} - {1}", photoInfo.Caption, photoInfo.Url);
                         } else {
                             InvokeOnMainThread(delegate {
                                 SetImage(data); 
@@ -76,6 +77,12 @@ namespace Funny
                     // FIXME otherwise - display a different image?  can't download right now
                     // this should be somewhat uncommon, because it means we downloaded the 
                     // photo info (which required a network connection), but not the photo
+                    Debug.WriteLine("No image downloaded: {0} - {1}", photoInfo.Caption, photoInfo.Url);
+#if DEBUG
+                    var label = new UILabel();
+                    label.Text = String.Format("No image downloaded: {0} - {1}", photoInfo.Caption, photoInfo.Url);
+                    AddSubview(label);
+#endif
                 }
             } else {
                 SetImage(data);

@@ -29,7 +29,7 @@ using MonoTouch.ObjCRuntime;
 /// </summary>
 namespace Funny
 {
-    public delegate void PhotosAdded(List<PhotoInfo> photos);
+    public delegate void PhotosAdded(PhotoInfo[] photos);
     public delegate void NoticeMessage(string message);
     
     public class FlickrDataSource
@@ -38,7 +38,7 @@ namespace Funny
 #if DEBUG
              / 4;  // limit to 1/4 mb
 #else
-             * 5;  // limit to 5 mb
+             / 2;  // limit to 1/2 mb
 #endif
         private const string PhotosDefaultsKey = "Photos";
         private const string LastViewedImageIndexKey = "LastViewedImageIndex";
@@ -75,22 +75,35 @@ namespace Funny
             if (null != lastIndex) {
                 LastViewedImageIndex = lastIndex.Int32Value;
             }
+
+            // if the connection isn't wifi, hook up a listener so that we'll notice when wifi is available
+            if (NetworkStatus.ReachableViaWiFiNetwork != Reachability.RemoteHostStatus()) {
+                Debug.WriteLine("Attach reachability listener");
+                Reachability.ReachabilityChanged += ReachabilityChanged;
+            }
         }
 
-        /// <summary>
-        /// Remove photos that have not already been downloaded.
-        /// </summary>
-        public void Prune() {
-            List<string> keysToRemove = new List<string>();
-            foreach (KeyValuePair<string, PhotoInfo> entry in photos) {
-                if (null == FileCacher.LoadUrl(entry.Value.Url, false)) {
-                    keysToRemove.Add(entry.Key);
-                }
+        private bool PhotosAvailable {
+            get {
+                return photos.Count == 0 || photos.Count != Photos.Count;
             }
+        }
 
-            Debug.WriteLine("Pruning {0} images", keysToRemove.Count);
-            foreach (string id in keysToRemove) {
-                photos.Remove(id);
+        private void ReachabilityChanged(object sender, EventArgs args) {
+            NetworkStatus status = Reachability.RemoteHostStatus();
+            Debug.WriteLine("Reachability changed: {0}", status);
+
+            if (NetworkStatus.ReachableViaWiFiNetwork == status || 
+                    (NetworkStatus.ReachableViaCarrierDataNetwork == status && 
+                        PhotosAvailable)) {
+//                Reachability.ReachabilityChanged += ReachabilityChanged;
+                System.Threading.ThreadPool.QueueUserWorkItem(delegate {
+                    if (photos.Count == 0) {
+                        Fetch (status);
+                    } else {
+                        FetchImages(status);
+                    }
+                });
             }
         }
         
@@ -109,7 +122,17 @@ namespace Funny
         
         public ICollection<PhotoInfo> Photos {
             get {
-                return photos.Values;
+                if (NetworkStatus.ReachableViaWiFiNetwork == Reachability.RemoteHostStatus()) {
+                    return photos.Values;
+                } else {
+                    List<PhotoInfo> photoList = new List<PhotoInfo>(photos.Count);
+                    foreach (KeyValuePair<string, PhotoInfo> entry in photos) {
+                        if (null != FileCacher.LoadUrl(entry.Value.Url, false)) {
+                            photoList.Add(entry.Value);
+                        }
+                    }
+                    return photoList;
+                }
             }
         }
         
@@ -123,6 +146,10 @@ namespace Funny
             Debug.WriteLine("Http request on thread {0}:{1}", 
                               System.Threading.Thread.CurrentThread.ManagedThreadId, System.Threading.Thread.CurrentThread.Name);
 
+            if (Messages != null) {
+                Messages("Updating the cartoon list");
+            }
+
             try {
                 UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;
                 photos = flickr.PhotosetsGetPhotos(FlickrAuth.photosetId);
@@ -132,15 +159,17 @@ namespace Funny
             
             bool changed = false;
             List<PhotoInfo> newPhotos = new List<PhotoInfo>();
-            foreach (Photo p in photos) {
-                PhotoInfo info = new PhotoInfo(p.PhotoId, GetUrl(p), p.Title, p.Tags);
-                if (!this.photos.ContainsKey(p.PhotoId)) {
-                    newPhotos.Add(info);
-                    changed = true;
+            lock (this.photos.Values) {
+                foreach (Photo p in photos) {
+                    PhotoInfo info = new PhotoInfo(p.PhotoId, GetUrl(p), p.Title, p.Tags);
+                    if (!this.photos.ContainsKey(p.PhotoId)) {
+                        newPhotos.Add(info);
+                        changed = true;
+                    }
+                    // we always overwrite our in memory copy of the photo info, and this will be
+                    // persisted on any change.
+                    this.photos[p.PhotoId] = info;
                 }
-                // we always overwrite our in memory copy of the photo info, and this will be
-                // persisted on any change.
-                this.photos[p.PhotoId] = info;
             }
             
             // REVIEW - consider always overwriting the local data with the remote info,
@@ -154,10 +183,10 @@ namespace Funny
             if (newPhotos.Count > 0) {
                 // Fire the Added event if we're on wifi - otherwise we're probably not going to download all images
                 if (null != Added && isWifi) {
-                    Added(newPhotos);
+                    Added(newPhotos.ToArray());
                 }
 
-                var message = String.Format("{0} new cartoon{1} arrived", 
+                var message = String.Format("{0} new cartoon{1} arrived.  Downloading images.", 
                                             newPhotos.Count, newPhotos.Count > 1 ? "s" : "");
                 if (null != Messages) {
                     Messages(message);
@@ -167,27 +196,37 @@ namespace Funny
                     SendNotification(message, newPhotos.Count); 
                 }
             }
+            int dlCount = FetchImages(status);
+            if (!isWifi && dlCount > 0) {
+                SendNotification(String.Format(
+                    "{0} new cartoon{1} arrived.  {2} were downloaded.  The rest will be downloaded when a wifi connection is available", 
+                                           newPhotos.Count, (dlCount > 1 ? "s" : ""), dlCount), newPhotos.Count); 
+            }
+        }
 
-            // limit cell downloads to 5 mb
+        private int FetchImages(NetworkStatus status) {
+            bool isWifi = NetworkStatus.ReachableViaWiFiNetwork == status;
+            List<PhotoInfo> downloadedPhotos = new List<PhotoInfo>();
+            // limit cell downloads
             uint byteLimit = NetworkStatus.ReachableViaCarrierDataNetwork == status ? CarrierDownloadLimitInBytes : UInt32.MaxValue;
             uint byteCount = 0;
             // warm the image file cache
-            int i = 0;
-            for (; i < newPhotos.Count && byteCount < byteLimit; i++) {
-                PhotoInfo p = newPhotos[i];
-                var data = FileCacher.LoadUrl(p.Url, true);
-                byteCount += data.Length;
-            }
-
-            if (!isWifi) {
-                if (null != Added) {
-                    // send a notification for the subset of images that were downloaded
-                    Added(newPhotos.GetRange(0, i));
+            lock (this.photos.Values) {
+                foreach (PhotoInfo p in this.photos.Values) {
+                    if (FileCacher.LoadUrl(p.Url, false) == null) {
+                        var data = FileCacher.LoadUrl(p.Url, true);
+                        byteCount += data.Length;
+                        downloadedPhotos.Add(p);
+                        if (null != Added) {
+                            Added(new PhotoInfo[] {p});
+                        }
+                        if (byteCount > byteLimit) {
+                            break;
+                        }
+                    }
                 }
-                SendNotification(String.Format(
-                    "{0} new cartoon{1} arrived.  {2} were downloaded.  The rest will be downloaded when a wifi connection is available", 
-                                           newPhotos.Count, (newPhotos.Count > 1 ? "s" : ""), i), newPhotos.Count); 
             }
+            return downloadedPhotos.Count;
         }
 
         private void SendNotification(string message, int count) {
@@ -212,9 +251,11 @@ namespace Funny
         public void Save() {
             
             NSMutableArray arr = new NSMutableArray();
-            
-            foreach (PhotoInfo info in this.photos.Values) {
-                arr.Add(info.Serialize());
+
+            lock (this.photos) {
+                foreach (PhotoInfo info in this.photos.Values) {
+                    arr.Add(info.Serialize());
+                }
             }
             
             NSUserDefaults.StandardUserDefaults[PhotosDefaultsKey] = arr;

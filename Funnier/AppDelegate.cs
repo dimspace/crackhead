@@ -99,7 +99,6 @@ namespace Funny
             var photoCount = FlickrDataSource.Get().Photos.Count;
             if (photoCount > 0 && NetworkStatus.ReachableViaCarrierDataNetwork == status) {
                 Debug.WriteLine("Skipping download via carrier.  Photo count: {0}", photoCount);
-                FlickrDataSource.Get().Prune();
                 return;
             }
             if (NetworkStatus.NotReachable == status) {

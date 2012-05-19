@@ -40,7 +40,7 @@ namespace Funny
             dataSource = FlickrDataSource.Get();
         }
         
-        private void PhotosAdded(List<PhotoInfo> photos) {
+        private void PhotosAdded(PhotoInfo[] photos) {
             InvokeOnMainThread (delegate {
                 lblLoadingMessage.Hidden = true;
                 if (null == scrollView.DataSource) {
@@ -99,6 +99,8 @@ namespace Funny
             if (dataSource.Photos.Count > 0) {
                 lblLoadingMessage.Hidden = true;
                 scrollView.DataSource = new DataSource(dataSource.Photos);
+            } else if (NetworkStatus.NotReachable == Reachability.RemoteHostStatus()) {
+                lblLoadingMessage.Text = "Sorry, but there's no connection available to download cartoons.  Please try again with a wifi connection.";
             }
             
             scrollView.AddGestureRecognizer(new UITapGestureRecognizer(this, new MonoTouch.ObjCRuntime.Selector("tapToggleToolbar")));
@@ -226,6 +228,13 @@ namespace Funny
             }
         
             public void AddPhotos(ICollection<PhotoInfo> newPhotos) {
+                this.photos.AddRange(newPhotos);
+                if (null != OnChanged) {
+                    OnChanged();
+                }
+            }
+        
+            public void AddPhotos(PhotoInfo[] newPhotos) {
                 this.photos.AddRange(newPhotos);
                 if (null != OnChanged) {
                     OnChanged();
