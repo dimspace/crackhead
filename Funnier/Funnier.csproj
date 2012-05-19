@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <MtouchLink>None</MtouchLink>
+    <MtouchArch>ARMv7</MtouchArch>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,6 +59,28 @@
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchArch>ARMv7</MtouchArch>
     <MtouchI18n />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Ad-Hoc|iPhone' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\iPhone\Ad-Hoc</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <BuildIpa>true</BuildIpa>
+    <CodesignKey>iPhone Distribution</CodesignKey>
+    <DefineConstants>dd</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|iPhone' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\iPhone\AppStore</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <CodesignKey>iPhone Distribution</CodesignKey>
+    <DefineConstants>MONOTOUCH</DefineConstants>
+    <MtouchArch>ARMv7</MtouchArch>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

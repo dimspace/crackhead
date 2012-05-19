@@ -11,9 +11,14 @@ Global
 		Release|iPhoneSimulator = Release|iPhoneSimulator
 		Debug|iPhone = Debug|iPhone
 		Release|iPhone = Release|iPhone
-		MONOTOUCH|Any CPU = MONOTOUCH|Any CPU
+		Ad-Hoc|iPhone = Ad-Hoc|iPhone
+		AppStore|iPhone = AppStore|iPhone
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+	{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Ad-Hoc|iPhone.ActiveCfg = Ad-Hoc|iPhone
+	{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Ad-Hoc|iPhone.Build.0 = Ad-Hoc|iPhone
+	{5F017126-C1FF-4996-85CC-6150E80C6AFC}.AppStore|iPhone.ActiveCfg = AppStore|iPhone
+	{5F017126-C1FF-4996-85CC-6150E80C6AFC}.AppStore|iPhone.Build.0 = AppStore|iPhone
 		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Debug|iPhone.ActiveCfg = Debug|Any CPU
 		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
@@ -34,6 +39,10 @@ Global
 		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Release|iPhone.Build.0 = Release|iPhone
 		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
 		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Ad-Hoc|iPhone.ActiveCfg = Ad-Hoc|iPhone
+		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Ad-Hoc|iPhone.Build.0 = Ad-Hoc|iPhone
+		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.AppStore|iPhone.ActiveCfg = AppStore|iPhone
+		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.AppStore|iPhone.Build.0 = AppStore|iPhone
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Funnier\Funnier.csproj
