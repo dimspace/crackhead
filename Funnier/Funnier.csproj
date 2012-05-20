@@ -48,6 +48,9 @@
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
     <MtouchProfiling>true</MtouchProfiling>
+    <CodesignProvision>2098FA72-E378-4C57-B3CF-DB7E0629EFB7</CodesignProvision>
+    <MtouchArch>ARMv7</MtouchArch>
+    <MtouchI18n />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -93,7 +96,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
-    <None Include="Photoset.xsd" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -110,7 +112,6 @@
     <Compile Include="FlickrDataSource.cs" />
     <Compile Include="Reachability.cs" />
     <Compile Include="DeviceUtils.cs" />
-    <Compile Include="Photoset.cs" />
     <Compile Include="UserDefaultsUtils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +123,10 @@
     <ProjectReference Include="..\FlickrNet\FlickrNet.csproj">
       <Project>{5F017126-C1FF-4996-85CC-6150E80C6AFC}</Project>
       <Name>FlickrNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FlickrCache\FlickrCache.csproj">
+      <Project>{0DE5AD44-4952-4898-AA2E-18024FB52E32}</Project>
+      <Name>FlickrCache</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

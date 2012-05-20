@@ -239,7 +239,7 @@ namespace FlickrNet
                     return String.Empty;
             }
         }
-        */
+
 
         /// <summary>
         /// Adds the partial options to the passed in <see cref="Hashtable"/>.
@@ -258,6 +258,7 @@ namespace FlickrNet
             if (options.Page > 0) parameters.Add("page", options.Page.ToString(System.Globalization.NumberFormatInfo.InvariantInfo));
             if (options.PrivacyFilter != PrivacyFilter.None) parameters.Add("privacy_filter", options.PrivacyFilter.ToString("d"));
         }
+        */
 
         internal static void WriteInt32(Stream s, int i)
         {

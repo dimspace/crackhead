@@ -11,7 +11,7 @@
             </xs:element>
           </xs:sequence>
           <xs:attribute name="Id" type="xs:string" />
-          <xs:attribute name="Caption" type="xs:string" />
+          <xs:attribute name="Title" type="xs:string" />
           <xs:attribute name="Url" type="xs:string"/>
         </xs:complexType>
       </xs:element>

@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlickrNet", "FlickrNet\Flic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Funnier", "Funnier\Funnier.csproj", "{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlickrCache", "FlickrCache\FlickrCache.csproj", "{0DE5AD44-4952-4898-AA2E-18024FB52E32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|iPhoneSimulator = Debug|iPhoneSimulator
@@ -13,12 +15,27 @@ Global
 		Release|iPhone = Release|iPhone
 		Ad-Hoc|iPhone = Ad-Hoc|iPhone
 		AppStore|iPhone = AppStore|iPhone
+		MONOTOUCH|Any CPU = MONOTOUCH|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-	{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Ad-Hoc|iPhone.ActiveCfg = Ad-Hoc|iPhone
-	{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Ad-Hoc|iPhone.Build.0 = Ad-Hoc|iPhone
-	{5F017126-C1FF-4996-85CC-6150E80C6AFC}.AppStore|iPhone.ActiveCfg = AppStore|iPhone
-	{5F017126-C1FF-4996-85CC-6150E80C6AFC}.AppStore|iPhone.Build.0 = AppStore|iPhone
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.Ad-Hoc|iPhone.ActiveCfg = Debug|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.Ad-Hoc|iPhone.Build.0 = Debug|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.AppStore|iPhone.ActiveCfg = Debug|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.AppStore|iPhone.Build.0 = Debug|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.MONOTOUCH|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.MONOTOUCH|Any CPU.Build.0 = Debug|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.Release|iPhone.Build.0 = Release|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{0DE5AD44-4952-4898-AA2E-18024FB52E32}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Ad-Hoc|iPhone.ActiveCfg = Debug|Any CPU
+		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Ad-Hoc|iPhone.Build.0 = Debug|Any CPU
+		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.AppStore|iPhone.ActiveCfg = Debug|Any CPU
+		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.AppStore|iPhone.Build.0 = Debug|Any CPU
 		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Debug|iPhone.ActiveCfg = Debug|Any CPU
 		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
@@ -29,6 +46,10 @@ Global
 		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Release|iPhone.Build.0 = Release|Any CPU
 		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{5F017126-C1FF-4996-85CC-6150E80C6AFC}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Ad-Hoc|iPhone.ActiveCfg = Ad-Hoc|iPhone
+		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Ad-Hoc|iPhone.Build.0 = Ad-Hoc|iPhone
+		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.AppStore|iPhone.ActiveCfg = AppStore|iPhone
+		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.AppStore|iPhone.Build.0 = AppStore|iPhone
 		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Debug|iPhone.ActiveCfg = Debug|iPhone
 		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Debug|iPhone.Build.0 = Debug|iPhone
 		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
@@ -39,10 +60,6 @@ Global
 		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Release|iPhone.Build.0 = Release|iPhone
 		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
 		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
-		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Ad-Hoc|iPhone.ActiveCfg = Ad-Hoc|iPhone
-		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.Ad-Hoc|iPhone.Build.0 = Ad-Hoc|iPhone
-		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.AppStore|iPhone.ActiveCfg = AppStore|iPhone
-		{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}.AppStore|iPhone.Build.0 = AppStore|iPhone
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Funnier\Funnier.csproj

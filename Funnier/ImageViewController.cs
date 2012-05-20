@@ -24,7 +24,7 @@ using System.Diagnostics;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using FlickrNet;
-using Flickr;
+using FlickrCache;
 
 /// <summary>
 /// Author: Saxon D'Aubin

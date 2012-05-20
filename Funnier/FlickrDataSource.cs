@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 
-using Flickr;
+using FlickrCache;
 using FlickrNet;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
@@ -54,7 +54,7 @@ namespace Funnier
         private readonly HashSet<string> photoIds = new HashSet<string>();
         private readonly FlickrNet.Flickr flickr;
 
-        private readonly Flickr.Photoset photoset;
+        private readonly FlickrCache.Photoset photoset;
         private DateTime? lastPhotoFetchTimestamp;
         public int LastViewedImageIndex { get; set; }
         
@@ -70,10 +70,11 @@ namespace Funnier
         {            
             flickr = new FlickrNet.Flickr (FlickrAuth.apiKey, FlickrAuth.sharedSecret);
 
+            // load the photo metadata that was saved in user defaults
             try {
-                Flickr.Photoset savedPhotos = UserDefaultsUtils.LoadObject<Flickr.Photoset>(PhotosDefaultsKey);
+                FlickrCache.Photoset savedPhotos = UserDefaultsUtils.LoadObject<FlickrCache.Photoset>(PhotosDefaultsKey);
                 if (savedPhotos == null) {
-                    photoset = new Flickr.Photoset();
+                    photoset = new FlickrCache.Photoset();
                     photoset.Photo = new PhotosetPhoto[0];
                 } else {
                     photoset = savedPhotos;
@@ -85,10 +86,10 @@ namespace Funnier
             } catch (Exception ex) {
                 Debug.WriteLine("An error occurred deserializing data: {0}", ex);
                 Debug.WriteLine(ex);
-                photoset = new Flickr.Photoset();
+                photoset = new FlickrCache.Photoset();
                 photoset.Photo = new PhotosetPhoto[0];
             }
-            var photoData = NSUserDefaults.StandardUserDefaults[PhotosDefaultsKey] as NSData;
+
             var lastIndex = NSUserDefaults.StandardUserDefaults[LastViewedImageIndexKey] as NSNumber;
             if (null != lastIndex) {
                 LastViewedImageIndex = lastIndex.Int32Value;
@@ -107,6 +108,9 @@ namespace Funnier
             }
         }
 
+        /// <summary>
+        /// The network connection status has changed.  Update if we have a connection.
+        /// </summary>
         private void ReachabilityChanged(object sender, EventArgs args) {
             NetworkStatus status = Reachability.RemoteHostStatus();
             Debug.WriteLine("Reachability changed: {0}", status);
@@ -114,7 +118,6 @@ namespace Funnier
             if (NetworkStatus.ReachableViaWiFiNetwork == status || 
                     (NetworkStatus.ReachableViaCarrierDataNetwork == status && 
                         PhotosAvailable)) {
-//                Reachability.ReachabilityChanged += ReachabilityChanged;
                 System.Threading.ThreadPool.QueueUserWorkItem(delegate {
                     if (photoset.Photo.Length == 0) {
                         Fetch (status);
@@ -140,10 +143,13 @@ namespace Funnier
         
         public PhotosetPhoto[] Photos {
             get {
-
+                // if we have a wifi connection, return all the photos assuming they'll be downloaded
                 if (NetworkStatus.ReachableViaWiFiNetwork == Reachability.RemoteHostStatus()) {
                     return photoset.Photo;
-                } else {
+                } 
+                else 
+                {
+                    // otherwise, filter the set of photos to the ones that have been cached to storage
                     List<PhotosetPhoto> photoList = new List<PhotosetPhoto>(photoset.Photo.Length);
                     foreach (PhotosetPhoto p in photoset.Photo) {
                         if (null != FileCacher.LoadUrl(p.Url, false)) {
@@ -206,21 +212,21 @@ namespace Funnier
             var photos = GetPhotosetPhotoCollection();
 
             List<PhotosetPhoto> newPhotos = new List<PhotosetPhoto>();
-            List<PhotosetPhoto> thePhotos = new List<PhotosetPhoto>();
+            List<PhotosetPhoto> allPhotos = new List<PhotosetPhoto>();
             lock (this.photoset) {
                 photoset.Photo = new PhotosetPhoto[photos.Count];
                 foreach (Photo p in photos) {
 
-                    var thePhoto = PhotosetPhoto.Create(p);
+                    var thePhoto = CreatePhotosetPhoto(p);
 
-                    thePhotos.Add(thePhoto);
+                    allPhotos.Add(thePhoto);
 
                     if (!photoIds.Contains(p.PhotoId)) {
                         newPhotos.Add(thePhoto);
                         photoIds.Add(p.PhotoId);
                     }
                 }
-                photoset.Photo = thePhotos.ToArray();
+                photoset.Photo = allPhotos.ToArray();
             }
 
             Save();
@@ -238,14 +244,44 @@ namespace Funnier
                 }
             }
             int dlCount = FetchImages(status);
-            if (!isWifi && dlCount > 0) {
+            if (!isWifi && dlCount > 0 && newPhotos.Count > 0) {
                 SendNotification(String.Format(
                     "{0} new cartoon{1} arrived.  {2} were downloaded.  The rest will be downloaded when a wifi connection is available", 
                                            newPhotos.Count, (dlCount > 1 ? "s" : ""), dlCount), newPhotos.Count);
             }
         }
 
+        /// <summary>
+        /// A convenience constructor to create our PhotosetPhoto object from a FlickrNet photo.
+        /// </summary>
+        public static PhotosetPhoto CreatePhotosetPhoto(Photo p) {
+            var photo = new FlickrCache.PhotosetPhoto();
+            photo.Title = p.Title;
+            photo.Id = p.PhotoId;
+            photo.Url = GetUrl(p);
+            photo.Tag = new List<string>(p.Tags).ToArray();
+
+            return photo;
+        }
+
+        /// <summary>
+        /// Returns the URL based on the type of device (larger image urls for the iPad).
+        /// </summary>
+        private static string GetUrl(Photo photo) {
+            return Funnier.DeviceUtils.IsIPad() ? photo.LargeUrl : photo.MediumUrl;
+        }
+
+        /// <summary>
+        /// Fetch images that have not already been cached.
+        /// </summary>
+        /// <returns>
+        /// The count of the number of downloaded images.
+        /// </returns>
+        /// <param name='status'>
+        /// The current network status.
+        /// </param>
         private int FetchImages(NetworkStatus status) {
+            if (NetworkStatus.NotReachable == status) return 0;
             List<PhotosetPhoto> downloadedPhotos = new List<PhotosetPhoto>();
             // limit cell downloads
             uint byteLimit = NetworkStatus.ReachableViaCarrierDataNetwork == status ? CarrierDownloadLimitInBytes : UInt32.MaxValue;
@@ -253,6 +289,7 @@ namespace Funnier
             // warm the image file cache
             lock (this.photoset) {
                 foreach (var p in this.photoset.Photo) {
+                    // if the photo is not cached, load it
                     if (FileCacher.LoadUrl(p.Url, false) == null) {
                         var data = FileCacher.LoadUrl(p.Url, true);
                         byteCount += data.Length;
@@ -298,44 +335,3 @@ namespace Funnier
         }
     }
 }
-
-namespace Flickr {
-    public partial class PhotosetPhoto {
-        public static PhotosetPhoto Create(Photo p) {
-            var photo = new PhotosetPhoto();
-            photo.Caption = p.Title;
-            photo.Id = p.PhotoId;
-            photo.Url = GetUrl(p);
-            photo.Tag = new List<string>(p.Tags).ToArray();
-
-            return photo;
-        }
-
-        private static string GetUrl(Photo photo) {
-            return Funnier.DeviceUtils.IsIPad() ? photo.LargeUrl : photo.MediumUrl;
-        }
-
-        public override bool Equals (object obj)
-        {
-            if (obj == null)
-                return false;
-            if (ReferenceEquals (this, obj))
-                return true;
-            if (obj.GetType () != typeof(PhotosetPhoto))
-                return false;
-            PhotosetPhoto other = (PhotosetPhoto)obj;
-            return Id == other.Id;
-        }
-        
-
-        public override int GetHashCode ()
-        {
-            unchecked {
-                return (Id != null ? Id.GetHashCode () : 0);
-            }
-        }
-        
-
-    }
-}
-

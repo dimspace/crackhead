@@ -148,11 +148,6 @@
     <Compile Include="InstitutionCollection.cs" />
     <Compile Include="LicenseCollection.cs" />
     <Compile Include="LicenseType.cs" />
-    <Compile Include="Namespace.cs" />
-    <Compile Include="NamespaceCollection.cs" />
-    <Compile Include="OAuthAccessToken.cs" />
-    <Compile Include="OAuthException.cs" />
-    <Compile Include="OAuthRequestToken.cs" />
     <Compile Include="PagedPhotoCollection.cs" />
     <Compile Include="Pair.cs" />
     <Compile Include="PairCollection.cs" />
@@ -170,12 +165,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Flickr_Photosets.cs" />
-    <Compile Include="Flickr_Tags.cs" />
     <Compile Include="GeoContext.cs" />
     <Compile Include="NoResponse.cs" />
     <Compile Include="ParsingException.cs" />
-    <Compile Include="PhotoPerson.cs" />
-    <Compile Include="PhotoPersonCollection.cs" />
     <Compile Include="Photoset.cs" />
     <Compile Include="PhotosetCommentCollection.cs" />
     <Compile Include="PhotosetPhotoCollection.cs" />
