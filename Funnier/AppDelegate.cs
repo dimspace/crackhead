@@ -43,6 +43,16 @@ namespace Funnier
             set;
         }
 
+        private const string OldPhotosDefaultsKey = "Photos";
+
+        private void CleanUpUserDefaults ()
+        {
+            // remove the old storage key if it exists
+            if (null != NSUserDefaults.StandardUserDefaults[OldPhotosDefaultsKey]) {
+                NSUserDefaults.StandardUserDefaults.RemoveObject(OldPhotosDefaultsKey);
+                NSUserDefaults.StandardUserDefaults.Synchronize();
+            }
+        }
         //
         // This method is invoked when the application has loaded and is ready to run. In this 
         // method you should instantiate the window, load the UI into it and then make the window
@@ -55,7 +65,7 @@ namespace Funnier
             Debug.WriteLine("Application started on thread {0}:{1}", 
                               System.Threading.Thread.CurrentThread.ManagedThreadId, System.Threading.Thread.CurrentThread.Name);
 
-            FetchCartoonsIfConnected();
+            CleanUpUserDefaults();
             return true;
         }
         
@@ -71,15 +81,15 @@ namespace Funnier
         public override void DidEnterBackground (UIApplication application)
         {
             Debug.WriteLine("DidEnterBackground");
-            FlickrDataSource.Get().SaveLastViewedImageIndex();
+            FlickrDataSource.Get().PhotosetCache.SaveLastViewedImageIndex();
         }
         
         /// This method is called as part of the transiton from background to active state.
         public override void WillEnterForeground (UIApplication application)
         {
-            Debug.WriteLine("FlickrDataSource.Stale = {0}", FlickrDataSource.Get().Stale);
+            Debug.WriteLine("FlickrDataSource.Stale = {0}", FlickrDataSource.Get().PhotosetCache.Stale);
 
-            if (FlickrDataSource.Get().Stale) {
+            if (FlickrDataSource.Get().PhotosetCache.Stale) {
                 FetchCartoonsIfConnected();
             }
         }
@@ -93,10 +103,10 @@ namespace Funnier
             alert.Show();
         }
         
-        private void FetchCartoonsIfConnected() {
+        public void FetchCartoonsIfConnected() {
             NetworkStatus status = Reachability.RemoteHostStatus();
             Debug.WriteLine("Network status: {0}", status);
-            var photoCount = FlickrDataSource.Get().Photos.Length;
+            var photoCount = FlickrDataSource.Get().PhotosetCache.Photos.Length;
             if (photoCount > 0 && NetworkStatus.ReachableViaCarrierDataNetwork == status) {
                 Debug.WriteLine("Skipping download via carrier.  Photo count: {0}", photoCount);
                 return;
@@ -115,9 +125,9 @@ namespace Funnier
         private void FetchCartoons(NetworkStatus status) {
             // FIXME revisit this error handling logic
             // only display a modal error message if there are no photos (initial startup)
-            var photoCount = FlickrDataSource.Get().Photos.Length;
+            var photoCount = FlickrDataSource.Get().PhotosetCache.Photos.Length;
             try {
-                FlickrDataSource.Get().Fetch(status);
+                FlickrDataSource.Get().PhotosetCache.Fetch(status);
             }
             catch (Exception ex) {
                 Debug.WriteLine(ex);

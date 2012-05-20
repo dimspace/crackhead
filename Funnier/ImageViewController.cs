@@ -25,6 +25,7 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using FlickrNet;
 using FlickrCache;
+using MonoTouchUtils;
 
 /// <summary>
 /// Author: Saxon D'Aubin
@@ -33,12 +34,14 @@ namespace Funnier
 {
     public partial class ImageViewController : UIViewController
     {
+        private const string NoConnectionMessage = 
+            "Sorry, but there's no connection available to download cartoons.  Please try again with a wifi connection.";
         private PagingScrollView scrollView;
-        private readonly FlickrDataSource dataSource;
+        private readonly PhotosetCache dataSource;
         
         public ImageViewController(IntPtr handle) : base (handle)
         {
-            dataSource = FlickrDataSource.Get();
+            dataSource = FlickrDataSource.Get().PhotosetCache;
         }
         
         private void PhotoAdded(PhotosetPhoto photo) {
@@ -56,7 +59,56 @@ namespace Funnier
             // Release any cached data, images, etc that aren't in use.
             scrollView.FreeUnusedViews();
         }
-        
+
+        private void CheckConnectionAndDisplayMessage ()
+        {
+            // when a device on a cell network first starts our app, it's often told there's no connection
+            // only to get a reachability notification a moment later.  because of that, we delay our 
+            // "No connection" message for a moment to make sure that's actually the case
+            if (NetworkStatus.NotReachable == Reachability.RemoteHostStatus()) {
+                var ev = new AutoResetEvent(false);
+                ThreadPool.RegisterWaitForSingleObject(ev, delegate(Object obj, bool timedOut) {
+                        if (NetworkStatus.NotReachable == Reachability.RemoteHostStatus()) {
+                            // ok, we really don't have a connection
+                            InvokeOnMainThread(delegate {
+                                lblLoadingMessage.Text = NoConnectionMessage;
+                            });
+                        }
+                    }, 
+                    null, TimeSpan.FromSeconds(3), true);
+            }
+
+        }
+
+        private void NoticeImagesChanged(int totalCount, int recentlyArrivedCount, int recentlyDownloadedCount) {
+            if (recentlyArrivedCount == 0) return;
+
+            // we only want to display a message with the initial download
+            dataSource.ImagesChanged -= NoticeImagesChanged;
+
+            string message;
+            if (recentlyDownloadedCount == recentlyArrivedCount) {
+                message = String.Format("{0} new cartoon{1} arrived.", 
+                                            recentlyArrivedCount, recentlyArrivedCount > 1 ? "s" : "");
+            } else {
+                message = String.Format(
+                    "{0} new cartoon{1} arrived.  {2} were downloaded.  The rest will be downloaded when a wifi connection is available", 
+                    recentlyArrivedCount, (recentlyDownloadedCount > 1 ? "s" : ""), recentlyDownloadedCount);
+            }
+
+            InvokeOnMainThread(delegate {
+                SendNotification(message, recentlyArrivedCount); 
+                lblLoadingMessage.Text = message;
+            });
+        }
+
+        private void NoticeMessages(string message) {
+            InvokeOnMainThread(delegate {
+                Debug.WriteLine("ImageViewController received message: {0}", message);
+                lblLoadingMessage.Text = message;
+                View.SetNeedsDisplay();
+            });
+        }
         
         public override void ViewDidLoad ()
         {
@@ -79,23 +131,18 @@ namespace Funnier
                 SetToolbarHidden(true);
                 // we have to do this on another thread because the scroll hasn't finished yet
                 ThreadPool.QueueUserWorkItem(delegate {
-                    FlickrDataSource.Get().LastViewedImageIndex = scrollView.GetCurrentViewIndex();
+                    dataSource.LastViewedImageIndex = scrollView.GetCurrentViewIndex();
                 });
                 
             };
             
             dataSource.Added += PhotoAdded;
-            dataSource.Messages += delegate(string message) {
-                InvokeOnMainThread(delegate {
-                    lblLoadingMessage.Text = message;
-                    View.SetNeedsDisplay();
-                });
-            };
+            dataSource.ImagesChanged += NoticeImagesChanged;
+            dataSource.Messages += NoticeMessages;
+
             scrollView.DataSource = new DataSource(dataSource.Photos);
             if (dataSource.Photos.Length == 0) {
-                if (NetworkStatus.NotReachable == Reachability.RemoteHostStatus()) {
-                    lblLoadingMessage.Text = "Sorry, but there's no connection available to download cartoons.  Please try again with a wifi connection.";
-                }
+                CheckConnectionAndDisplayMessage();
             } else {
                 lblLoadingMessage.Hidden = true;
             }
@@ -110,13 +157,17 @@ namespace Funnier
                 GetLastImageButton(),
                 spacerButton}, false);
             View.BringSubviewToFront(toolbar);
+
+            (UIApplication.SharedApplication.Delegate as AppDelegate).FetchCartoonsIfConnected();
         }
         
         public override void ViewWillAppear (bool animated)
         {
             base.ViewWillAppear (animated);
-            var lastViewedIndex = FlickrDataSource.Get().LastViewedImageIndex;
-            scrollView.ScrollToView(lastViewedIndex);
+            var lastViewedIndex = dataSource.LastViewedImageIndex;
+            if (lastViewedIndex > 0) {
+                scrollView.ScrollToView(lastViewedIndex);
+            }
             scrollView.FinishRotation(lastViewedIndex);
         }
         
@@ -182,6 +233,9 @@ namespace Funnier
             
             // remove our event listener.  very important
             dataSource.Added -= PhotoAdded;
+            dataSource.ImagesChanged -= NoticeImagesChanged;
+            dataSource.Messages -= NoticeMessages;
+
             ReleaseDesignerOutlets ();
             Debug.WriteLine("View unload");
         }
@@ -189,10 +243,6 @@ namespace Funnier
         public override bool ShouldAutorotateToInterfaceOrientation (UIInterfaceOrientation toInterfaceOrientation)
         {
             return true;
-        }
-        
-        private static bool IsLandscape(UIInterfaceOrientation orientation) {
-            return orientation == UIInterfaceOrientation.LandscapeRight || orientation == UIInterfaceOrientation.LandscapeLeft;
         }
         
         int? currentIndex;
@@ -206,6 +256,20 @@ namespace Funnier
         {
             base.DidRotate (fromInterfaceOrientation);
             scrollView.FinishRotation(currentIndex);
+        }
+
+        private void SendNotification(string message, int count) {
+            Debug.WriteLine("Sending notification: {0}", message);
+            UILocalNotification notification = new UILocalNotification{
+                    FireDate = DateTime.Now,
+                    TimeZone = NSTimeZone.LocalTimeZone,
+                    AlertBody = message,
+                    RepeatInterval = 0,
+                    ApplicationIconBadgeNumber = count
+                };
+            UIApplication.SharedApplication.InvokeOnMainThread(delegate {
+                UIApplication.SharedApplication.ScheduleLocalNotification(notification);
+            });
         }
         
         private class DataSource : PagingViewDataSource {

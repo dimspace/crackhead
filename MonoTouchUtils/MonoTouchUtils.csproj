@@ -5,13 +5,12 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0DE5AD44-4952-4898-AA2E-18024FB52E32}</ProjectGuid>
+    <ProjectGuid>{F22CE405-656A-4FE7-B641-770008475E27}</ProjectGuid>
     <ProjectTypeGuids>{6BC8ED88-2882-458C-8E55-DFD12B67127B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>FlickrCache</RootNamespace>
-    <AssemblyName>FlickrCache</AssemblyName>
-    <Description>Caching functionality for Flickr photoset data.
-Authored by Saxon D'Aubin.</Description>
+    <RootNamespace>MonoTouchUtils</RootNamespace>
+    <AssemblyName>MonoTouchUtils</AssemblyName>
+    <Description>Utility classes for MonoTouch development by Saxon D'Aubin.</Description>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,22 +38,11 @@ Authored by Saxon D'Aubin.</Description>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Compile Include="Photoset.cs" />
-    <Compile Include="PhotosetPhoto.cs" />
-    <Compile Include="PhotosetCache.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="photoset.sh" />
-    <None Include="Photoset.xsd" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FlickrNet\FlickrNet.csproj">
-      <Project>{5F017126-C1FF-4996-85CC-6150E80C6AFC}</Project>
-      <Name>FlickrNet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MonoTouchUtils\MonoTouchUtils.csproj">
-      <Project>{F22CE405-656A-4FE7-B641-770008475E27}</Project>
-      <Name>MonoTouchUtils</Name>
-    </ProjectReference>
+    <Compile Include="DeviceUtils.cs" />
+    <Compile Include="FileCacher.cs" />
+    <Compile Include="Reachability.cs" />
+    <Compile Include="UserDefaultsUtils.cs" />
+    <Compile Include="PagingScrollView.cs" />
+    <Compile Include="PagingViewDataSource.cs" />
   </ItemGroup>
 </Project>

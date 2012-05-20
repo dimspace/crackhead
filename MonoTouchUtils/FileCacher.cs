@@ -25,7 +25,7 @@ using MonoTouch.UIKit;
 /// <summary>
 /// Author: Saxon D'Aubin
 /// </summary>
-namespace Funnier
+namespace MonoTouchUtils
 {
     public static class FileCacher
     {

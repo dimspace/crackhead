@@ -5,8 +5,11 @@ using System.IO.Compression;
 
 using MonoTouch.Foundation;
 
-namespace Funnier
+namespace MonoTouchUtils
 {
+    /// <summary>
+    /// Helper methods to serialize objects to and from UserDefaults as xml.
+    /// </summary>
     public static class UserDefaultsUtils
     {
         /// <summary>

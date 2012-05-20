@@ -24,6 +24,7 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MonoTouch.CoreGraphics;
 using FlickrCache;
+using MonoTouchUtils;
 
 /// <summary>
 /// Author: Saxon D'Aubin

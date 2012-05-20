@@ -25,7 +25,7 @@ using MonoTouch.CoreGraphics;
 /// <summary>
 /// Author: Saxon D'Aubin
 /// </summary>
-namespace Funnier
+namespace MonoTouchUtils
 {
     /// <summary>
     /// A delegate that is fired when a paging scroll view is scrolled.

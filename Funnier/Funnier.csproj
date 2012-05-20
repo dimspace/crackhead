@@ -101,18 +101,12 @@
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="FlickrAuth.cs" />
-    <Compile Include="FileCacher.cs" />
     <Compile Include="CaptionedImage.cs" />
-    <Compile Include="PagingScrollView.cs" />
-    <Compile Include="PagingViewDataSource.cs" />
     <Compile Include="ImageViewController.cs" />
     <Compile Include="ImageViewController.designer.cs">
       <DependentUpon>ImageViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="FlickrDataSource.cs" />
-    <Compile Include="Reachability.cs" />
-    <Compile Include="DeviceUtils.cs" />
-    <Compile Include="UserDefaultsUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />
@@ -127,6 +121,10 @@
     <ProjectReference Include="..\FlickrCache\FlickrCache.csproj">
       <Project>{0DE5AD44-4952-4898-AA2E-18024FB52E32}</Project>
       <Name>FlickrCache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MonoTouchUtils\MonoTouchUtils.csproj">
+      <Project>{F22CE405-656A-4FE7-B641-770008475E27}</Project>
+      <Name>MonoTouchUtils</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
