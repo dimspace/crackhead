@@ -39,6 +39,7 @@ namespace FlickrNet
             // If performing one of the old 'flickr.auth' methods then use old authentication details.
             string method = parameters["method"];
 
+            /*
             if (method.StartsWith("flickr.auth") && !method.EndsWith("oauth.checkToken"))
             {
                 if (!String.IsNullOrEmpty(AuthToken)) parameters["auth_token"] = AuthToken;
@@ -56,6 +57,7 @@ namespace FlickrNet
                     parameters["auth_token"] = AuthToken;
                 }
             }
+            */
 
             Uri url;
             if (!String.IsNullOrEmpty(sharedSecret))

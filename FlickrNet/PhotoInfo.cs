@@ -259,7 +259,7 @@ namespace FlickrNet
         /// <remarks>
         /// Will be null if the photo has no location information stored on Flickr.
         /// </remarks>
-        public PlaceInfo Location { get; set; }
+//        public PlaceInfo Location { get; set; }
 
         /// <summary>
         /// Who has permissions to see the geo-location data for this photo.
@@ -269,7 +269,7 @@ namespace FlickrNet
         /// <summary>
         /// If this item is a video this contains information such as if it is ready, its duration etc.
         /// </summary>
-        public VideoInfo VideoInfo { get; set; }
+//        public VideoInfo VideoInfo { get; set; }
 
         /// <summary>
         /// Does this photo contain tagged people.
@@ -406,16 +406,18 @@ namespace FlickrNet
                         ParseUrls(reader);
                         break;
                     case "location":
-                        Location = new PlaceInfo();
-                        ((IFlickrParsable)Location).Load(reader);
+//                        Location = new PlaceInfo();
+//                        ((IFlickrParsable)Location).Load(reader);
+                        reader.Skip();
                         break;
                     case "geoperms":
                         GeoPermissions = new GeoPermissions();
                         ((IFlickrParsable)GeoPermissions).Load(reader);
                         break;
                     case "video":
-                        VideoInfo = new VideoInfo();
-                        ((IFlickrParsable)VideoInfo).Load(reader);
+//                        VideoInfo = new VideoInfo();
+//                        ((IFlickrParsable)VideoInfo).Load(reader);
+                        reader.Skip();
                         break;
                     case "people":
                         HasPeople = reader.GetAttribute("haspeople") == "1";

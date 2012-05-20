@@ -91,13 +91,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActivityEvent.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ActivityItem.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ActivityItemCollection.cs" />
     <Compile Include="ApiKeyRequiredException.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -105,18 +98,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssemblyInfoMore.cs" />
-    <Compile Include="Auth.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="AuthenticationRequiredException.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Blog.cs" />
-    <Compile Include="BlogCollection.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="BlogService.cs" />
-    <Compile Include="BlogServiceCollection.cs" />
     <Compile Include="BoundaryBox.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -126,8 +110,6 @@
     <Compile Include="Cluster.cs" />
     <Compile Include="ClusterCollection.cs" />
     <Compile Include="Contact.cs" />
-    <Compile Include="CsvFile.cs" />
-    <Compile Include="CsvFileCollection.cs" />
     <Compile Include="EchoResponseDictionary.cs" />
     <Compile Include="Exceptions\BadUrlFoundException.cs" />
     <Compile Include="Exceptions\FormatNotFoundException.cs" />
@@ -143,59 +125,11 @@
     <Compile Include="Exceptions\UserNotFoundException.cs" />
     <Compile Include="Exceptions\UserNotLoggedInInsufficientPermissionsException.cs" />
     <Compile Include="ExifTag.cs" />
-    <Compile Include="FavoriteContextPhoto.cs" />
-    <Compile Include="FavoriteContext.cs" />
     <Compile Include="FlickrResponder.cs" />
-    <Compile Include="FlickrResponderAsync.cs" />
     <Compile Include="FlickrResponderSync.cs" />
     <Compile Include="FlickrResult.cs" />
-    <Compile Include="Flickr_ActivityAsync.cs" />
-    <Compile Include="Flickr_AuthAsync.cs" />
-    <Compile Include="Flickr_AuthCalc.cs" />
-    <Compile Include="Flickr_BlogsAsync.cs" />
-    <Compile Include="Flickr_CollectionsAsync.cs" />
-    <Compile Include="Flickr_Commons.cs" />
-    <Compile Include="Flickr_CommonsAsync.cs" />
-    <Compile Include="Flickr_ContactsAsync.cs" />
-    <Compile Include="Flickr_FavoritesAsync.cs" />
-    <Compile Include="Flickr_Galleries.cs" />
-    <Compile Include="Flickr_GalleriesAsync.cs" />
-    <Compile Include="Flickr_GetResponseAsync.cs" />
-    <Compile Include="Flickr_GroupsAsync.cs" />
-    <Compile Include="Flickr_InterestingnessAsync.cs" />
-    <Compile Include="Flickr_MachineTags.cs" />
-    <Compile Include="Flickr_MachineTagsAsync.cs" />
-    <Compile Include="Flickr_NotesAsync.cs" />
-    <Compile Include="Flickr_OAuth.cs" />
-    <Compile Include="Flickr_OAuthAsync.cs" />
-    <Compile Include="Flickr_OAuthSync.cs" />
-    <Compile Include="Flickr_PandaAsync.cs" />
-    <Compile Include="Flickr_PeopleAsync.cs" />
-    <Compile Include="Flickr_PhotosAsync.cs" />
-    <Compile Include="Flickr_PhotosCommentsAsync.cs" />
-    <Compile Include="Flickr_PhotosetsAsync.cs" />
-    <Compile Include="Flickr_PhotosGeoAsync.cs" />
-    <Compile Include="Flickr_PhotosMiscAsync.cs" />
-    <Compile Include="Flickr_PhotosPeople.cs" />
-    <Compile Include="Flickr_PhotosPeopleAsync.cs" />
-    <Compile Include="Flickr_PlacesAsync.cs" />
-    <Compile Include="Flickr_PrefsAsync.cs" />
-    <Compile Include="Flickr_ReflectionAsync.cs" />
-    <Compile Include="Flickr_StatsAsync.cs" />
-    <Compile Include="Flickr_TagsAsync.cs" />
-    <Compile Include="Flickr_TestAsync.cs" />
-    <Compile Include="Flickr_Upload.cs" />
-    <Compile Include="Flickr_UploadAsync.cs" />
-    <Compile Include="Flickr_UrlsAsync.cs" />
-    <Compile Include="Gallery.cs" />
-    <Compile Include="GalleryCollection.cs" />
-    <Compile Include="GalleryPhoto.cs" />
-    <Compile Include="GalleryPhotoCollection.cs" />
     <Compile Include="GeoPermissionType.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="GroupCategory.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Collection.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -214,8 +148,6 @@
     <Compile Include="InstitutionCollection.cs" />
     <Compile Include="LicenseCollection.cs" />
     <Compile Include="LicenseType.cs" />
-    <Compile Include="MemberGroupInfo.cs" />
-    <Compile Include="MemberGroupInfoCollection.cs" />
     <Compile Include="Namespace.cs" />
     <Compile Include="NamespaceCollection.cs" />
     <Compile Include="OAuthAccessToken.cs" />
@@ -237,20 +169,8 @@
     <Compile Include="DateGranularity.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Flickr_Activity.cs" />
-    <Compile Include="Flickr_Blogs.cs" />
-    <Compile Include="Flickr_Contacts.cs" />
-    <Compile Include="Flickr_Favorites.cs" />
-    <Compile Include="Flickr_Groups.cs" />
-    <Compile Include="Flickr_Interestingness.cs" />
-    <Compile Include="Flickr_Notes.cs" />
-    <Compile Include="Flickr_PhotosComments.cs" />
     <Compile Include="Flickr_Photosets.cs" />
-    <Compile Include="Flickr_PhotosGeo.cs" />
-    <Compile Include="Flickr_PhotosMisc.cs" />
-    <Compile Include="Flickr_Prefs.cs" />
     <Compile Include="Flickr_Tags.cs" />
-    <Compile Include="Flickr_Urls.cs" />
     <Compile Include="GeoContext.cs" />
     <Compile Include="NoResponse.cs" />
     <Compile Include="ParsingException.cs" />
@@ -259,21 +179,6 @@
     <Compile Include="Photoset.cs" />
     <Compile Include="PhotosetCommentCollection.cs" />
     <Compile Include="PhotosetPhotoCollection.cs" />
-    <Compile Include="PlaceCollection.cs" />
-    <Compile Include="PlaceInfo.cs" />
-    <Compile Include="PlaceTypeInfo.cs" />
-    <Compile Include="PlaceTypeInfoCollection.cs" />
-    <Compile Include="PoolPrivacy.cs" />
-    <Compile Include="PopularitySort.cs" />
-    <Compile Include="PopularPhoto.cs" />
-    <Compile Include="PopularPhotoCollection.cs" />
-    <Compile Include="Predicate.cs" />
-    <Compile Include="PredicateCollection.cs" />
-    <Compile Include="PublicGroupInfo.cs" />
-    <Compile Include="PublicGroupInfoCollection.cs" />
-    <Compile Include="ShapeData.cs" />
-    <Compile Include="ShapeDataCollection.cs" />
-    <Compile Include="StatReferrer.cs" />
     <Compile Include="Enums.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -287,38 +192,19 @@
     <Compile Include="FlickrApiException.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FlickrConfigurationManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="FlickrConfigurationSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="FlickrException.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FlickrWebException.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Flickr_Auth.cs" />
     <Compile Include="Flickr_Collections.cs" />
     <Compile Include="Flickr_GetResponse.cs" />
-    <Compile Include="Flickr_Panda.cs" />
-    <Compile Include="Flickr_People.cs" />
-    <Compile Include="Flickr_Photos.cs" />
-    <Compile Include="Flickr_Places.cs" />
     <Compile Include="Flickr_Reflection.cs" />
-    <Compile Include="Flickr_Stats.cs" />
-    <Compile Include="Flickr_Test.cs" />
     <Compile Include="GeoAccuracy.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GeoPermissions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Groups.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="GroupSearchResultCollection.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="IFlickrParsable.cs" />
@@ -329,19 +215,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MediaType.cs" />
-    <Compile Include="Member.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MemberCollection.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MemberTypes.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="MethodCollection.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PandaPhotoCollection.cs" />
     <Compile Include="PartialSearchOptions.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -352,14 +228,12 @@
     <Compile Include="Person.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PhotoFavorite.cs" />
     <Compile Include="Photo.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PhotoCountCollection.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PhotoFavoriteCollection.cs" />
     <Compile Include="PhotoInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -381,10 +255,6 @@
     <Compile Include="PhotoSetCollection.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Place.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="PlaceType.cs" />
     <Compile Include="ResponseXmlException.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -397,30 +267,15 @@
     <Compile Include="Sizes.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="StatDomain.cs" />
-    <Compile Include="StatDomainCollection.cs" />
-    <Compile Include="StatReferrerCollection.cs" />
-    <Compile Include="Stats.cs" />
-    <Compile Include="StatViews.cs" />
     <Compile Include="Tags.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Ticket.cs" />
-    <Compile Include="TicketCollection.cs" />
     <Compile Include="UnknownResponse.cs" />
-    <Compile Include="UploadProgressEvent.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="User.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="UserGeoPermissions.cs" />
     <Compile Include="UtilityMethods.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Value.cs" />
     <Compile Include="ValueCollection.cs" />
-    <Compile Include="VideoInfo.cs" />
     <None Include="example_app.config" />
     <None Include="FlickrNet.ndoc" />
     <None Include="FlickrNet.snk" />

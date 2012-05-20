@@ -23,6 +23,7 @@ namespace FlickrNet
         {
         }
 
+        /*
         /// <summary>
         /// Converts <see cref="AuthLevel"/> to a string.
         /// </summary>
@@ -44,7 +45,7 @@ namespace FlickrNet
                     return String.Empty;
 
             }
-        }
+        }*/
 
         /// <summary>
         /// Convert a <see cref="TagMode"/> to a string used when passing to Flickr.
@@ -218,6 +219,7 @@ namespace FlickrNet
             }
         }
 
+        /*
         /// <summary>
         /// Converts a <see cref="PopularitySort"/> enum to a string.
         /// </summary>
@@ -237,6 +239,7 @@ namespace FlickrNet
                     return String.Empty;
             }
         }
+        */
 
         /// <summary>
         /// Adds the partial options to the passed in <see cref="Hashtable"/>.
@@ -358,7 +361,7 @@ namespace FlickrNet
             return String.Format(System.Globalization.CultureInfo.InvariantCulture, format, parameters);
         }
 
-
+        /*
         internal static MemberTypes ParseIdToMemberType(string memberTypeId)
         {
             switch (memberTypeId)
@@ -399,6 +402,7 @@ namespace FlickrNet
 
             return sb.ToString();
         }
+        */
 
         /// <summary>
         /// Generates an MD5 Hash of the passed in string.

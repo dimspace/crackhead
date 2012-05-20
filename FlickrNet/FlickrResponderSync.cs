@@ -22,7 +22,7 @@ namespace FlickrNet
             bool oAuth = parameters.ContainsKey("oauth_consumer_key");
 
             if (oAuth)
-                return GetDataResponseOAuth(flickr, baseUrl, parameters);
+                return null; //GetDataResponseOAuth(flickr, baseUrl, parameters);
             else
                 return GetDataResponseNormal(flickr, baseUrl, parameters);
         }
@@ -46,6 +46,7 @@ namespace FlickrNet
                 return DownloadData(method, baseUrl, data, PostContentType, null);
         }
 
+        /*
         private static string GetDataResponseOAuth(Flickr flickr, string baseUrl, Dictionary<string, string> parameters)
         {
             string method = "POST";
@@ -94,7 +95,7 @@ namespace FlickrNet
                 }
             }
         }
-
+*/
 
 #if !WindowsCE
         private static string DownloadData(string method, string baseUrl, string data, string contentType, string authHeader)
