@@ -8,7 +8,7 @@
     <ProjectGuid>{635C99B5-EDC8-42A7-8AD2-E8EC6553F607}</ProjectGuid>
     <ProjectTypeGuids>{6BC8ED88-2882-458C-8E55-DFD12B67127B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Funny</RootNamespace>
+    <RootNamespace>Funnier</RootNamespace>
     <AssemblyName>Funnier</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
@@ -111,6 +111,7 @@
     <Compile Include="Reachability.cs" />
     <Compile Include="DeviceUtils.cs" />
     <Compile Include="Photoset.cs" />
+    <Compile Include="UserDefaultsUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />

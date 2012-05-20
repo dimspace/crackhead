@@ -6,7 +6,7 @@
 //
 using MonoTouch.Foundation;
 
-namespace Funny
+namespace Funnier
 {
 	[Register ("ImageViewController")]
 	partial class ImageViewController

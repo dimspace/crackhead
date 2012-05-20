@@ -3,9 +3,9 @@ using System;
 using MonoTouch.UIKit;
 
 /// <summary>
-/// Author: sdaubin
+/// Author: Saxon D'Aubin
 /// </summary>
-namespace Funny
+namespace Funnier
 {
     public static class DeviceUtils
     {

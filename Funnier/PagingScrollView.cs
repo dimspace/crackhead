@@ -23,9 +23,9 @@ using MonoTouch.UIKit;
 using MonoTouch.CoreGraphics;
 
 /// <summary>
-/// Author: sdaubin
+/// Author: Saxon D'Aubin
 /// </summary>
-namespace Funny
+namespace Funnier
 {
     /// <summary>
     /// A delegate that is fired when a paging scroll view is scrolled.

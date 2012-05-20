@@ -23,12 +23,12 @@ using System.Threading;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MonoTouch.CoreGraphics;
-using Flicker;
+using Flickr;
 
 /// <summary>
-/// Author: sdaubin
+/// Author: Saxon D'Aubin
 /// </summary>
-namespace Funny
+namespace Funnier
 {
     public class CaptionedImage : UIView
     {

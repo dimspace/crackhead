@@ -21,9 +21,9 @@ using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 
 /// <summary>
-/// Author: sdaubin
+/// Author: Saxon D'Aubin
 /// </summary>
-namespace Funny
+namespace Funnier
 {
     /// <summary>
     /// A callback for a PagingViewDataSource change event.

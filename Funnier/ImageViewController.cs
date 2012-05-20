@@ -24,12 +24,12 @@ using System.Diagnostics;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using FlickrNet;
-using Flicker;
+using Flickr;
 
 /// <summary>
-/// Author: sdaubin
+/// Author: Saxon D'Aubin
 /// </summary>
-namespace Funny
+namespace Funnier
 {
     public partial class ImageViewController : UIViewController
     {
@@ -92,8 +92,12 @@ namespace Funny
                 });
             };
             scrollView.DataSource = new DataSource(dataSource.Photos);
-            if (dataSource.Photos.Length == 0 && NetworkStatus.NotReachable == Reachability.RemoteHostStatus()) {
-                lblLoadingMessage.Text = "Sorry, but there's no connection available to download cartoons.  Please try again with a wifi connection.";
+            if (dataSource.Photos.Length == 0) {
+                if (NetworkStatus.NotReachable == Reachability.RemoteHostStatus()) {
+                    lblLoadingMessage.Text = "Sorry, but there's no connection available to download cartoons.  Please try again with a wifi connection.";
+                }
+            } else {
+                lblLoadingMessage.Hidden = true;
             }
             
             scrollView.AddGestureRecognizer(new UITapGestureRecognizer(this, new MonoTouch.ObjCRuntime.Selector("tapToggleToolbar")));

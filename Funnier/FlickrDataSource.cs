@@ -19,17 +19,19 @@ using System;
 using System.Xml.Serialization;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 
-using Flicker;
+using Flickr;
 using FlickrNet;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MonoTouch.ObjCRuntime;
 
 /// <summary>
-/// Author: sdaubin
+/// Author: Saxon D'Aubin
 /// </summary>
-namespace Funny
+namespace Funnier
 {
     public delegate void PhotoAdded(PhotosetPhoto photo);
     public delegate void NoticeMessage(string message);
@@ -50,9 +52,9 @@ namespace Funny
         /// </summary>
         /// 
         private readonly HashSet<string> photoIds = new HashSet<string>();
-        private readonly Flickr flickr;
+        private readonly FlickrNet.Flickr flickr;
 
-        private readonly Flicker.Photoset photoset;
+        private readonly Flickr.Photoset photoset;
         private DateTime? lastPhotoFetchTimestamp;
         public int LastViewedImageIndex { get; set; }
         
@@ -66,20 +68,27 @@ namespace Funny
         
         private FlickrDataSource ()
         {            
-            flickr = new Flickr (FlickrAuth.apiKey, FlickrAuth.sharedSecret);
-            var photos = NSUserDefaults.StandardUserDefaults[PhotosDefaultsKey] as NSString;
-            if (null != photos) {
-                using (var reader = new System.IO.StringReader(photos.ToString())) {
-                    var serializer = new XmlSerializer(typeof(Flicker.Photoset));
-                    photoset = serializer.Deserialize(reader) as Flicker.Photoset;
+            flickr = new FlickrNet.Flickr (FlickrAuth.apiKey, FlickrAuth.sharedSecret);
+
+            try {
+                Flickr.Photoset savedPhotos = UserDefaultsUtils.LoadObject<Flickr.Photoset>(PhotosDefaultsKey);
+                if (savedPhotos == null) {
+                    photoset = new Flickr.Photoset();
+                    photoset.Photo = new PhotosetPhoto[0];
+                } else {
+                    photoset = savedPhotos;
+                    Debug.WriteLine("Successfully loaded photoset data");
                     foreach (PhotosetPhoto p in photoset.Photo) {
                         photoIds.Add(p.Id);
                     }
                 }
-            } else {
-                photoset = new Flicker.Photoset();
+            } catch (Exception ex) {
+                Debug.WriteLine("An error occurred deserializing data: {0}", ex);
+                Debug.WriteLine(ex);
+                photoset = new Flickr.Photoset();
                 photoset.Photo = new PhotosetPhoto[0];
             }
+            var photoData = NSUserDefaults.StandardUserDefaults[PhotosDefaultsKey] as NSData;
             var lastIndex = NSUserDefaults.StandardUserDefaults[LastViewedImageIndexKey] as NSNumber;
             if (null != lastIndex) {
                 LastViewedImageIndex = lastIndex.Int32Value;
@@ -186,6 +195,10 @@ namespace Funny
                 }
             }
 
+            photoset.LastUpdated = info.DateUpdated;
+            photoset.LastUpdatedSpecified = true;
+            photoset.Title = info.Title;
+
             if (Messages != null) {
                 Messages("Updating the cartoon list");
             }
@@ -198,17 +211,12 @@ namespace Funny
                 photoset.Photo = new PhotosetPhoto[photos.Count];
                 foreach (Photo p in photos) {
 
-                    var thePhoto = new PhotosetPhoto();
-                    thePhoto.Caption = p.Title;
-                    thePhoto.Id = p.PhotoId;
-                    thePhoto.Url = GetUrl(p);
-                    thePhoto.Tag = new List<string>(p.Tags).ToArray();
+                    var thePhoto = PhotosetPhoto.Create(p);
 
                     thePhotos.Add(thePhoto);
 
-                    if (photoIds.Contains(p.PhotoId)) {
+                    if (!photoIds.Contains(p.PhotoId)) {
                         newPhotos.Add(thePhoto);
-                    } else {
                         photoIds.Add(p.PhotoId);
                     }
                 }
@@ -243,7 +251,7 @@ namespace Funny
             uint byteLimit = NetworkStatus.ReachableViaCarrierDataNetwork == status ? CarrierDownloadLimitInBytes : UInt32.MaxValue;
             uint byteCount = 0;
             // warm the image file cache
-            lock (this.photoset.Photo) {
+            lock (this.photoset) {
                 foreach (var p in this.photoset.Photo) {
                     if (FileCacher.LoadUrl(p.Url, false) == null) {
                         var data = FileCacher.LoadUrl(p.Url, true);
@@ -275,29 +283,59 @@ namespace Funny
             });
         }
         
-        private string GetUrl(Photo photo) {
-            return DeviceUtils.IsIPad() ? photo.LargeUrl : photo.MediumUrl;
-        }
-        
         /// <summary>
         /// Save all of the photo information to user defaults.
         /// </summary>
         public void Save() {
-            var serializer = new XmlSerializer(typeof(Flicker.Photoset));
-            using (var writer = new System.IO.StringWriter()) {
-                serializer.Serialize(writer, photoset);
-                var xml = writer.ToString();
-                NSUserDefaults.StandardUserDefaults[PhotosDefaultsKey] = new NSString(xml);
-                // remove the old storage key if it exists
-                NSUserDefaults.StandardUserDefaults.RemoveObject(OldPhotosDefaultsKey);
-                NSUserDefaults.StandardUserDefaults.Synchronize();
-            }
-
+            // remove the old storage key if it exists
+            NSUserDefaults.StandardUserDefaults.RemoveObject(OldPhotosDefaultsKey);
+            UserDefaultsUtils.SaveObject(PhotosDefaultsKey, photoset);
+            Debug.WriteLine("Successfully saved photoset data");
         }
         
         public void SaveLastViewedImageIndex() {
             NSUserDefaults.StandardUserDefaults[LastViewedImageIndexKey] = new NSNumber(LastViewedImageIndex);
         }
+    }
+}
+
+namespace Flickr {
+    public partial class PhotosetPhoto {
+        public static PhotosetPhoto Create(Photo p) {
+            var photo = new PhotosetPhoto();
+            photo.Caption = p.Title;
+            photo.Id = p.PhotoId;
+            photo.Url = GetUrl(p);
+            photo.Tag = new List<string>(p.Tags).ToArray();
+
+            return photo;
+        }
+
+        private static string GetUrl(Photo photo) {
+            return Funnier.DeviceUtils.IsIPad() ? photo.LargeUrl : photo.MediumUrl;
+        }
+
+        public override bool Equals (object obj)
+        {
+            if (obj == null)
+                return false;
+            if (ReferenceEquals (this, obj))
+                return true;
+            if (obj.GetType () != typeof(PhotosetPhoto))
+                return false;
+            PhotosetPhoto other = (PhotosetPhoto)obj;
+            return Id == other.Id;
+        }
+        
+
+        public override int GetHashCode ()
+        {
+            unchecked {
+                return (Id != null ? Id.GetHashCode () : 0);
+            }
+        }
+        
+
     }
 }
 
