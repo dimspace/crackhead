@@ -24,6 +24,7 @@ using System.Diagnostics;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using FlickrNet;
+using Flicker;
 
 /// <summary>
 /// Author: sdaubin
@@ -40,16 +41,10 @@ namespace Funny
             dataSource = FlickrDataSource.Get();
         }
         
-        private void PhotosAdded(PhotoInfo[] photos) {
+        private void PhotoAdded(PhotosetPhoto photo) {
             InvokeOnMainThread (delegate {
                 lblLoadingMessage.Hidden = true;
-                if (null == scrollView.DataSource) {
-                    scrollView.DataSource = new DataSource(photos);
-                } else {
-                    (scrollView.DataSource as DataSource).AddPhotos(photos);
-                }
-//                            scrollView.DataSource = new DataSource(photos);
-                
+                (scrollView.DataSource as DataSource).AddPhoto(photo);
             });
         }
         
@@ -89,17 +84,15 @@ namespace Funny
                 
             };
             
-            dataSource.Added += PhotosAdded;
+            dataSource.Added += PhotoAdded;
             dataSource.Messages += delegate(string message) {
                 InvokeOnMainThread(delegate {
                     lblLoadingMessage.Text = message;
                     View.SetNeedsDisplay();
                 });
             };
-            if (dataSource.Photos.Count > 0) {
-                lblLoadingMessage.Hidden = true;
-                scrollView.DataSource = new DataSource(dataSource.Photos);
-            } else if (NetworkStatus.NotReachable == Reachability.RemoteHostStatus()) {
+            scrollView.DataSource = new DataSource(dataSource.Photos);
+            if (dataSource.Photos.Length == 0 && NetworkStatus.NotReachable == Reachability.RemoteHostStatus()) {
                 lblLoadingMessage.Text = "Sorry, but there's no connection available to download cartoons.  Please try again with a wifi connection.";
             }
             
@@ -134,7 +127,7 @@ namespace Funny
             return new UIBarButtonItem(UIBarButtonSystemItem.FastForward, 
                 delegate {
                     Debug.WriteLine("Width {0}", View.Frame.Width);
-                    scrollView.ScrollToView(dataSource.Photos.Count - 1);
+                    scrollView.ScrollToView(dataSource.Photos.Length - 1);
                 });
         }
         
@@ -184,7 +177,7 @@ namespace Funny
             // e.g. myOutlet.Dispose (); myOutlet = null;
             
             // remove our event listener.  very important
-            dataSource.Added -= PhotosAdded;
+            dataSource.Added -= PhotoAdded;
             ReleaseDesignerOutlets ();
             Debug.WriteLine("View unload");
         }
@@ -212,13 +205,12 @@ namespace Funny
         }
         
         private class DataSource : PagingViewDataSource {
-            private readonly List<PhotoInfo> photos;
+            private readonly List<PhotosetPhoto> photos;
             public event Changed OnChanged;
             
-            public DataSource(ICollection<PhotoInfo> photos) {
-                this.photos = new List<PhotoInfo>();
-                
-                AddPhotos(photos);
+            public DataSource(PhotosetPhoto[] photos) {
+                this.photos = new List<PhotosetPhoto>(photos);
+                if (null != OnChanged) { OnChanged(); }
             }
             
             public int Count { 
@@ -227,15 +219,8 @@ namespace Funny
                 }
             }
         
-            public void AddPhotos(ICollection<PhotoInfo> newPhotos) {
-                this.photos.AddRange(newPhotos);
-                if (null != OnChanged) {
-                    OnChanged();
-                }
-            }
-        
-            public void AddPhotos(PhotoInfo[] newPhotos) {
-                this.photos.AddRange(newPhotos);
+            public void AddPhoto(PhotosetPhoto newPhoto) {
+                this.photos.Add(newPhoto);
                 if (null != OnChanged) {
                     OnChanged();
                 }

@@ -23,6 +23,7 @@ using System.Threading;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 using MonoTouch.CoreGraphics;
+using Flicker;
 
 /// <summary>
 /// Author: sdaubin
@@ -36,7 +37,7 @@ namespace Funny
         private volatile UIImageView imageView;
         private readonly UILabel captionLabel;
         
-        public CaptionedImage (PhotoInfo photoInfo)
+        public CaptionedImage (PhotosetPhoto photoInfo)
         {
                         
             captionLabel = new UILabel();

@@ -96,7 +96,7 @@ namespace Funny
         private void FetchCartoonsIfConnected() {
             NetworkStatus status = Reachability.RemoteHostStatus();
             Debug.WriteLine("Network status: {0}", status);
-            var photoCount = FlickrDataSource.Get().Photos.Count;
+            var photoCount = FlickrDataSource.Get().Photos.Length;
             if (photoCount > 0 && NetworkStatus.ReachableViaCarrierDataNetwork == status) {
                 Debug.WriteLine("Skipping download via carrier.  Photo count: {0}", photoCount);
                 return;
@@ -115,7 +115,7 @@ namespace Funny
         private void FetchCartoons(NetworkStatus status) {
             // FIXME revisit this error handling logic
             // only display a modal error message if there are no photos (initial startup)
-            var photoCount = FlickrDataSource.Get().Photos.Count;
+            var photoCount = FlickrDataSource.Get().Photos.Length;
             try {
                 FlickrDataSource.Get().Fetch(status);
             }
