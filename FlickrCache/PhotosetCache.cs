@@ -18,6 +18,7 @@
 using System;
 using System.Xml.Serialization;
 using System.Diagnostics;
+using System.Drawing;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -185,7 +186,7 @@ namespace FlickrCache
             try {
                 UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;
                 Debug.WriteLine("Fetching photoset photo list");
-                return flickr.PhotosetsGetPhotos(photosetId);
+                return flickr.PhotosetsGetPhotos(photosetId, PhotoSearchExtras.AllUrls | PhotoSearchExtras.Tags);
             } finally {
                 UIApplication.SharedApplication.NetworkActivityIndicatorVisible = networkIndicator;
             }
@@ -258,11 +259,25 @@ namespace FlickrCache
             return photo;
         }
 
+        private static bool LargerThanBounds(float width, float height, SizeF bounds) {
+            return width > bounds.Width || height > bounds.Height;
+        }
+
         /// <summary>
-        /// Returns the URL based on the type of device (larger image urls for the iPad).
+        /// Returns the URL by picking the smallest image that is larger than the device screen bounds.
         /// </summary>
         private static string GetUrl(Photo photo) {
-            return DeviceUtils.IsIPad() ? photo.LargeUrl : photo.MediumUrl;
+            var bounds = UIScreen.MainScreen.Bounds.Size;
+            if (photo.SmallWidth.HasValue && LargerThanBounds(photo.SmallWidth.Value, photo.SmallHeight.Value, bounds)) {
+                return photo.SmallUrl;
+            }
+            if (photo.MediumWidth.HasValue && LargerThanBounds(photo.MediumWidth.Value, photo.MediumHeight.Value, bounds)) {
+                return photo.MediumUrl;
+            }
+            if (photo.Medium640Width.HasValue && LargerThanBounds(photo.Medium640Width.Value, photo.Medium640Height.Value, bounds)) {
+                return photo.Medium640Url;
+            }
+            return photo.LargeUrl;
         }
 
         /// <summary>
