@@ -51,7 +51,6 @@ namespace FlickrCache
 #endif
 
         private readonly string photosetUserDefaultsKeyName;
-        private readonly string photosetLastViewedImageIndexKeyName;
 
         /// <summary>
         /// Set of known photo ids, used to notice when new images have arrived.
@@ -63,7 +62,6 @@ namespace FlickrCache
 
         private readonly FlickrCache.Photoset photoset;
         private DateTime? lastPhotoFetchTimestamp;
-        public int LastViewedImageIndex { get; set; }
         
         public event PhotoAdded Added;
         public event NoticeMessage Messages;
@@ -73,7 +71,6 @@ namespace FlickrCache
         {
             this.photosetId = photosetId;
             photosetUserDefaultsKeyName = "Photoset_" + photosetId;
-            photosetLastViewedImageIndexKeyName = "LastViewedImageIndex_" + photosetId;
 
             flickr = new FlickrNet.Flickr (apiKey, sharedSecret);
 
@@ -95,11 +92,6 @@ namespace FlickrCache
                 Debug.WriteLine(ex);
                 photoset = new FlickrCache.Photoset();
                 photoset.Photo = new PhotosetPhoto[0];
-            }
-
-            var lastIndex = NSUserDefaults.StandardUserDefaults[photosetLastViewedImageIndexKeyName] as NSNumber;
-            if (null != lastIndex) {
-                LastViewedImageIndex = lastIndex.Int32Value;
             }
 
             // hook up a listener so that we'll notice when connectivity changes
@@ -254,7 +246,7 @@ namespace FlickrCache
             photo.Title = p.Title;
             photo.Id = p.PhotoId;
             photo.Url = GetUrl(p);
-            photo.Tag = new List<string>(p.Tags).ToArray();
+            photo.Tags = new List<string>(p.Tags).ToArray();
 
             return photo;
         }
@@ -323,10 +315,6 @@ namespace FlickrCache
         public void Save() {
             UserDefaultsUtils.SaveObject(photosetUserDefaultsKeyName, photoset);
             Debug.WriteLine("Successfully saved photoset data");
-        }
-        
-        public void SaveLastViewedImageIndex() {
-            NSUserDefaults.StandardUserDefaults[photosetLastViewedImageIndexKeyName] = new NSNumber(LastViewedImageIndex);
         }
     }
 }

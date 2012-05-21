@@ -88,7 +88,7 @@ namespace FlickrCache {
         
         private string urlField;
         
-        private string[] tagField;
+        private string[] tagsField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -124,13 +124,13 @@ namespace FlickrCache {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Tag", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public string[] Tag {
+        [System.Xml.Serialization.XmlElementAttribute("Tags", Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string[] Tags {
             get {
-                return this.tagField;
+                return this.tagsField;
             }
             set {
-                this.tagField = value;
+                this.tagsField = value;
             }
         }
     }

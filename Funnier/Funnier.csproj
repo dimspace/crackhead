@@ -86,6 +86,7 @@
     <CodesignProvision>DD0ED07A-FBDB-4E04-9E5B-9208F645DD6E</CodesignProvision>
     <MtouchArch>ARMv7</MtouchArch>
     <DefineConstants>MONOTOUCH</DefineConstants>
+    <MtouchI18n />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -96,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
+    <None Include="UserSettings.xsd" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -107,6 +109,8 @@
       <DependentUpon>ImageViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="FlickrDataSource.cs" />
+    <Compile Include="UserSettings.cs" />
+    <Compile Include="GlobalUserSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />

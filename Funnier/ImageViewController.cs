@@ -124,6 +124,18 @@ namespace Funnier
             scrollView.BackgroundColor = UIColor.Clear;
             View.AddSubview(scrollView);
             
+            dataSource.Added += PhotoAdded;
+            dataSource.ImagesChanged += NoticeImagesChanged;
+            dataSource.Messages += NoticeMessages;
+
+            var scrollViewDataSource = new DataSource(dataSource.Photos);
+            scrollView.DataSource = scrollViewDataSource;
+            if (dataSource.Photos.Length == 0) {
+                CheckConnectionAndDisplayMessage();
+            } else {
+                lblLoadingMessage.Hidden = true;
+            }
+
             scrollView.OnScroll += delegate {
                 // clear the icon badge number.  In the future we might want to update it as cartoons are viewed
                 UIApplication.SharedApplication.ApplicationIconBadgeNumber = 0;
@@ -131,21 +143,9 @@ namespace Funnier
                 SetToolbarHidden(true);
                 // we have to do this on another thread because the scroll hasn't finished yet
                 ThreadPool.QueueUserWorkItem(delegate {
-                    dataSource.LastViewedImageIndex = scrollView.GetCurrentViewIndex();
+                    GlobalUserSettings.Get().LastViewedCartoonId = scrollViewDataSource.GetPhoto(scrollView.GetCurrentViewIndex()).Id;
                 });
-                
             };
-            
-            dataSource.Added += PhotoAdded;
-            dataSource.ImagesChanged += NoticeImagesChanged;
-            dataSource.Messages += NoticeMessages;
-
-            scrollView.DataSource = new DataSource(dataSource.Photos);
-            if (dataSource.Photos.Length == 0) {
-                CheckConnectionAndDisplayMessage();
-            } else {
-                lblLoadingMessage.Hidden = true;
-            }
             
             scrollView.AddGestureRecognizer(new UITapGestureRecognizer(this, new MonoTouch.ObjCRuntime.Selector("tapToggleToolbar")));
             var spacerButton = new UIBarButtonItem(UIBarButtonSystemItem.FixedSpace);
@@ -164,11 +164,14 @@ namespace Funnier
         public override void ViewWillAppear (bool animated)
         {
             base.ViewWillAppear (animated);
-            var lastViewedIndex = dataSource.LastViewedImageIndex;
-            if (lastViewedIndex > 0) {
-                scrollView.ScrollToView(lastViewedIndex);
+            var id = GlobalUserSettings.Get().LastViewedCartoonId;
+            if (null != id && id.Length > 0) {
+                var lastViewedIndex = (scrollView.DataSource as DataSource).GetIndex(id);
+                if (lastViewedIndex > 0) {
+                    scrollView.ScrollToView(lastViewedIndex);
+                }
+                scrollView.FinishRotation(lastViewedIndex);
             }
-            scrollView.FinishRotation(lastViewedIndex);
         }
         
         private UIBarButtonItem GetFirstImageButton() {
@@ -298,6 +301,20 @@ namespace Funnier
                 var view = new CaptionedImage(photos[index]);
                 view.AutoresizingMask = UIViewAutoresizing.FlexibleDimensions;
                 return view;
+            }
+
+            public PhotosetPhoto GetPhoto(int index) {
+                return photos[index];
+            }
+
+            public int GetIndex(string photoId) {
+                for (var i = 0; i < photos.Count; i++) {
+                    PhotosetPhoto p = photos[i];
+                    if (p.Id.Equals(photoId)) {
+                        return i;
+                    }
+                }
+                return -1;
             }
         }
     }

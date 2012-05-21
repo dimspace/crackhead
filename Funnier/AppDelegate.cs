@@ -81,7 +81,7 @@ namespace Funnier
         public override void DidEnterBackground (UIApplication application)
         {
             Debug.WriteLine("DidEnterBackground");
-            FlickrDataSource.Get().PhotosetCache.SaveLastViewedImageIndex();
+            GlobalUserSettings.Get().Save();
         }
         
         /// This method is called as part of the transiton from background to active state.
