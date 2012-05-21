@@ -158,11 +158,12 @@ namespace Funnier
                 spacerButton}, false);
             View.BringSubviewToFront(toolbar);
 
-            (UIApplication.SharedApplication.Delegate as AppDelegate).FetchCartoonsIfConnected();
+            FlickrDataSource.Get().FetchCartoonsIfConnected();
         }
         
         public override void ViewWillAppear (bool animated)
         {
+            Debug.WriteLine("ImageViewController.ViewWillAppear");
             base.ViewWillAppear (animated);
             var lastViewedIndex = dataSource.LastViewedImageIndex;
             if (lastViewedIndex > 0) {

@@ -96,7 +96,7 @@ namespace MonoTouchUtils
             try {
                 UIApplication.SharedApplication.NetworkActivityIndicatorVisible = true;
                 var data = NSData.FromUrl (new NSUrl (url));
-                
+                if (null == data) return null;
                 byte[] dataBytes = new byte[data.Length];
     
                 System.Runtime.InteropServices.Marshal.Copy(data.Bytes, dataBytes, 0, Convert.ToInt32(data.Length));

@@ -68,6 +68,8 @@ namespace FlickrCache
         public event PhotoAdded Added;
         public event NoticeMessage Messages;
         public event ImagesChanged ImagesChanged;
+
+        private volatile NetworkStatus networkStatus;
         
         public PhotosetCache(string apiKey, string sharedSecret, string photosetId)
         {
@@ -104,6 +106,7 @@ namespace FlickrCache
 
             // hook up a listener so that we'll notice when connectivity changes
             Debug.WriteLine("Attach reachability listener");
+            networkStatus = Reachability.RemoteHostStatus();
             Reachability.ReachabilityChanged += ReachabilityChanged;
         }
 
@@ -300,14 +303,26 @@ namespace FlickrCache
                 foreach (var p in this.photoset.Photo) {
                     // if the photo is not cached, load it
                     if (FileCacher.LoadUrl(p.Url, false) == null) {
-                        var data = FileCacher.LoadUrl(p.Url, true);
-                        byteCount += data.Length;
-                        downloadedPhotos.Add(p);
-                        if (null != Added) {
-                            Added(p);
-                        }
-                        if (byteCount > byteLimit) {
-                            break;
+                        if (status == networkStatus) {
+                            var data = FileCacher.LoadUrl(p.Url, true);
+                            if (null == data) {
+                                Debug.WriteLine("An error occurred downloading photos.  Networks status was {0}, is now {1}.  Aborting downloads",
+                                                status, Reachability.RemoteHostStatus());
+                                return downloadedPhotos.Count;
+                            }
+                            byteCount += data.Length;
+                            downloadedPhotos.Add(p);
+                            if (null != Added) {
+                                Added(p);
+                            }
+                            if (byteCount > byteLimit) {
+                                break;
+                            }
+                        } else {
+                            Debug.WriteLine("Noticed a network connectivity change during image download from {0} to {1}",
+                                            status, networkStatus);
+                            // for now, let's just bail when the connectivity changes
+                            return downloadedPhotos.Count;
                         }
                     }
                 }

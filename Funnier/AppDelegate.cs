@@ -22,6 +22,7 @@ using System.Diagnostics;
 
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
+using MonoTouchUtils;
 
 using FlickrNet;
 
@@ -34,8 +35,12 @@ namespace Funnier
     // User Interface of the application, as well as listening (and optionally responding) to 
     // application events from iOS.
     [Register ("AppDelegate")]
-    public partial class AppDelegate : UIApplicationDelegate
+    public partial class AppDelegate : UIApplicationDelegate, ApplicationEventEmitter
     {
+    
+        public event EnteringForeground EnteringForeground;
+        public event EnteredBackground EnteredBackground;
+    
         // class-level declarations
         
         public override UIWindow Window {
@@ -81,16 +86,16 @@ namespace Funnier
         public override void DidEnterBackground (UIApplication application)
         {
             Debug.WriteLine("DidEnterBackground");
-            FlickrDataSource.Get().PhotosetCache.SaveLastViewedImageIndex();
+            if (null != EnteredBackground) {
+                EnteredBackground();
+            }
         }
         
         /// This method is called as part of the transiton from background to active state.
         public override void WillEnterForeground (UIApplication application)
         {
-            Debug.WriteLine("FlickrDataSource.Stale = {0}", FlickrDataSource.Get().PhotosetCache.Stale);
-
-            if (FlickrDataSource.Get().PhotosetCache.Stale) {
-                FetchCartoonsIfConnected();
+            if (null != EnteringForeground) {
+                EnteringForeground();
             }
         }
         
@@ -101,45 +106,6 @@ namespace Funnier
             UIAlertView alert = new UIAlertView("Funnier", 
                     notification.AlertBody, null, "Okay");
             alert.Show();
-        }
-        
-        public void FetchCartoonsIfConnected() {
-            NetworkStatus status = Reachability.RemoteHostStatus();
-            Debug.WriteLine("Network status: {0}", status);
-            var photoCount = FlickrDataSource.Get().PhotosetCache.Photos.Length;
-            if (photoCount > 0 && NetworkStatus.ReachableViaCarrierDataNetwork == status) {
-                Debug.WriteLine("Skipping download via carrier.  Photo count: {0}", photoCount);
-                return;
-            }
-            if (NetworkStatus.NotReachable == status) {
-
-                Debug.WriteLine("Skipping download.  Network status: {0}", status);
-            } else {
-                System.Threading.ThreadPool.QueueUserWorkItem(
-                    delegate {
-                        FetchCartoons(status);
-                    });
-            }
-        }
-        
-        private void FetchCartoons(NetworkStatus status) {
-            // FIXME revisit this error handling logic
-            // only display a modal error message if there are no photos (initial startup)
-            var photoCount = FlickrDataSource.Get().PhotosetCache.Photos.Length;
-            try {
-                FlickrDataSource.Get().PhotosetCache.Fetch(status);
-            }
-            catch (Exception ex) {
-                Debug.WriteLine(ex);
-                if (photoCount == 0) {
-
-                    InvokeOnMainThread (delegate {
-                        using (var alert = new UIAlertView ("Error", "Unable to download cartoons - " + ex.Message, null, "Ok")) {
-                            alert.Show ();
-                        }
-                    });
-                }
-            }
         }
     }
 }

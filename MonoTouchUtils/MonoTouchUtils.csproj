@@ -44,5 +44,6 @@
     <Compile Include="UserDefaultsUtils.cs" />
     <Compile Include="PagingScrollView.cs" />
     <Compile Include="PagingViewDataSource.cs" />
+    <Compile Include="ApplicationEventEmitter.cs" />
   </ItemGroup>
 </Project>
